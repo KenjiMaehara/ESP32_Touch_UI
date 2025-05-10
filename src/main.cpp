@@ -10,7 +10,7 @@ TFT_eSPI tft = TFT_eSPI();
 #define YP 34
 #define YM 35
 
-TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);  // 最後の数字は圧力しきい値
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 500);  // 最後の数字は圧力しきい値
 
 void setup() {
   Serial.begin(115200);
@@ -26,15 +26,25 @@ void setup() {
   tft.println("Touch the screen!");
 }
 
+void resetTouchPins() {
+  pinMode(XM, OUTPUT);
+  pinMode(YP, INPUT);   // 入力専用ピンはINPUTに明示
+  pinMode(XP, INPUT);
+  pinMode(YM, INPUT);
+}
+
 void loop() {
+  resetTouchPins();  // ← 重要！
+
   TSPoint p = ts.getPoint();
 
-  if (p.z > 50) {  // ある程度の圧がかかったときだけ反応
+  if (p.z > 400 && p.z < 900 && p.x > 50 && p.x < 950 && p.y > 50 && p.y < 950) {
     Serial.print("X = "); Serial.print(p.x);
     Serial.print(" | Y = "); Serial.print(p.y);
     Serial.print(" | Pressure = "); Serial.println(p.z);
 
-    tft.fillCircle(p.x / 10, p.y / 10, 3, TFT_RED);  // 簡易的に表示位置調整
+    tft.fillCircle(p.x / 10, p.y / 10, 3, TFT_RED);
     delay(100);
   }
+
 }
