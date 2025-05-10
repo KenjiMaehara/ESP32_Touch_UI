@@ -1,63 +1,37 @@
 #include <TFT_eSPI.h>
-#include <SPI.h>
-#include <TouchScreen.h>
-
 TFT_eSPI tft = TFT_eSPI();
 
-// タッチピン設定（ESP32-32Eの配線に合わせる）
-//#define XP 33
-//#define XM 32
-//#define YP 34
-//#define YM 35
+#define BUTTON_X  60
+#define BUTTON_Y  100
+#define BUTTON_W  200
+#define BUTTON_H  60
 
-#define XP 27
-#define XM 26
-#define YP 25
-#define YM 33
+bool buttonPressed = false;
 
-TouchScreen ts = TouchScreen(XP, YP, XM, YM, 500);  // 最後の数字は圧力しきい値
+void drawButton(bool pressed) {
+  uint16_t color = pressed ? TFT_GREEN : TFT_BLUE;
+  tft.fillRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, color);
+  tft.drawRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, TFT_WHITE);
+  tft.setTextColor(TFT_WHITE, color);
+  tft.setTextDatum(MC_DATUM);  // 中央揃え
+  tft.drawString("Press Me", BUTTON_X + BUTTON_W / 2, BUTTON_Y + BUTTON_H / 2);
+}
 
 void setup() {
   Serial.begin(115200);
-  pinMode(27, OUTPUT);  // バックライトON
+  pinMode(27, OUTPUT);  // バックライトON（必要に応じて変更）
   digitalWrite(27, HIGH);
 
   tft.init();
   tft.setRotation(1);
   tft.fillScreen(TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setTextColor(TFT_WHITE);
-  tft.setCursor(40, 40);
-  tft.println("Touch the screen!");
-}
 
-void resetTouchPins() {
-  // XM = GPIO32 → 出力OK
-  // XP = GPIO33 → 出力OK
-  // YP = GPIO34 → 入力専用
-  // YM = GPIO35 → 入力専用
-
-  pinMode(XM, OUTPUT);  // OK
-  pinMode(XP, OUTPUT);  // OK
-  pinMode(YP, INPUT);   // 必ずINPUT
-  pinMode(YM, INPUT);   // 必ずINPUT
+  drawButton(false);  // 初期ボタン表示
 }
 
 void loop() {
-  resetTouchPins();  // ← 重要！
-
-  TSPoint p = ts.getPoint();
-  Serial.println(p.z);  // ← zが常に0なら未接続
-
-  //if (p.z > 400 && p.z < 900 && p.x > 50 && p.x < 950 && p.y > 50 && p.y < 950) {
-  if (p.z > 400 && p.z < 900) {
-    Serial.println("Touch detected");
-    Serial.print("X = "); Serial.print(p.x);
-    Serial.print(" | Y = "); Serial.print(p.y);
-    Serial.print(" | Pressure = "); Serial.println(p.z);
-
-    tft.fillCircle(p.x / 10, p.y / 10, 3, TFT_RED);
-    delay(100);
-  }
-
+  // デモのため、自動で色を変える
+  delay(2000);
+  buttonPressed = !buttonPressed;
+  drawButton(buttonPressed);
 }
