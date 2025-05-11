@@ -33,6 +33,10 @@ static void btn_event_cb(lv_event_t *e) {
 
 void setup() {
     Serial.begin(115200);
+
+    pinMode(27, OUTPUT);
+    digitalWrite(27, HIGH);  // ★ ここがないと画面真っ暗！
+
     tft.begin();
     tft.setRotation(1);
     tft.fillScreen(TFT_RED);  // LVGLとは無関係に強制塗り潰し
