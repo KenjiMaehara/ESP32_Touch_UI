@@ -35,10 +35,13 @@ public: LGFX(void) {
       cfg.pin_cs = 15;
       cfg.pin_rst = -1;
       cfg.pin_busy = -1;
-      cfg.memory_width = screenWidth;
-      cfg.memory_height = screenHeight;
-      cfg.panel_width = screenWidth;
-      cfg.panel_height = screenHeight;
+
+      cfg.memory_width = screenHeight;
+      cfg.memory_height = screenWidth;
+
+      cfg.panel_width = screenHeight;   // 320
+      cfg.panel_height = screenWidth;  // 480
+
       cfg.offset_x = 0;
       cfg.offset_y = 0;
       cfg.offset_rotation = 0;
@@ -85,7 +88,6 @@ public: LGFX(void) {
 LGFX tft;
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
-  Serial.printf("flush: x1=%d y1=%d x2=%d y2=%d\n", area->x1, area->y1, area->x2, area->y2);
   tft.startWrite();
   tft.setAddrWindow(area->x1, area->y1, area->x2 - area->x1 + 1, area->y2 - area->y1 + 1);
   tft.pushColors((uint16_t *)color_p, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1), true);
@@ -109,7 +111,7 @@ void btn_event_cb(lv_event_t *e) {
 void setup() {
   Serial.begin(115200);
   tft.init();
-  tft.setRotation(1);
+  tft.setRotation(1); // 必要に応じて 0〜3 を試してください
 
   lv_init();
   lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * draw_buf_lines);
@@ -118,10 +120,13 @@ void setup() {
   lv_disp_drv_init(&disp_drv);
   disp_drv.flush_cb = my_disp_flush;
   disp_drv.draw_buf = &draw_buf;
-  disp_drv.hor_res = screenWidth;
-  disp_drv.ver_res = screenHeight;
-  disp_drv.sw_rotate = 0;
-  disp_drv.rotated = LV_DISP_ROT_NONE;
+
+  disp_drv.hor_res = screenHeight;  // 320
+  disp_drv.ver_res = screenWidth;   // 480
+
+  disp_drv.sw_rotate = 1;                         // ← 追加
+  disp_drv.rotated = LV_DISP_ROT_90;              // ← 追加（LovyanGFXの setRotation(1) に合わせる）
+
   lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
@@ -130,14 +135,21 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
+  // ボタン作成
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-
   lv_obj_t *label = lv_label_create(btn);
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
-
   lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, label);
+
+  // 画面全体に赤枠表示（デバッグ用）
+  lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
+  lv_obj_set_style_border_width(bg_rect, 4, 0);
+  lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
+  //lv_obj_set_size(bg_rect, screenWidth, screenHeight);
+  lv_obj_set_size(bg_rect, screenHeight, screenWidth);  // ← 幅と高さを入れ替え
+  lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
 }
 
 void loop() {
