@@ -144,6 +144,7 @@ void setup() {
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
+  lv_obj_move_background(bg_rect);  // ← これを追加（背面に送る）
 }
 
 void loop() {
