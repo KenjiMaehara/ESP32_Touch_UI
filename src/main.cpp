@@ -65,20 +65,18 @@ public: LGFX(void) {
     {
       auto cfg = _touch_instance.config();
 
-      // ✨ タッチ補正
       cfg.x_min = 3700;
       cfg.x_max = 200;
       cfg.y_min = 200;
       cfg.y_max = 3700;
 
-      cfg.offset_rotation = 1;  // ← rotation(1) に合わせる
+      cfg.offset_rotation = 1;
       cfg.spi_host = SPI2_HOST;
       cfg.freq = 1000000;
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
       cfg.pin_cs = 33;
-
       cfg.pin_int = -1;
       cfg.bus_shared = true;
 
@@ -99,12 +97,30 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
   lv_disp_flush_ready(disp);
 }
 
+// 修正版：状態遷移が起きたときのみLVGLに通知
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
-  if (tft.getTouch(&data->point.x, &data->point.y)) {
-    data->state = LV_INDEV_STATE_PRESSED;
-    Serial.printf("[LVGL] Touch: x=%d, y=%d\n", data->point.x, data->point.y);
+  static bool last_pressed = false;
+  int x, y;
+
+  bool touched = tft.getTouch(&x, &y);
+
+  if (touched) {
+    data->point.x = x;
+    data->point.y = y;
+
+    if (!last_pressed) {
+      data->state = LV_INDEV_STATE_PRESSED;
+      last_pressed = true;
+      Serial.printf("[LVGL] Touch START: x=%d, y=%d\n", x, y);
+    } else {
+      data->state = LV_INDEV_STATE_PRESSED;
+    }
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
+    if (last_pressed) {
+      Serial.println("[LVGL] Touch RELEASED");
+      last_pressed = false;
+    }
   }
 }
 
@@ -117,7 +133,6 @@ void btn_event_cb(lv_event_t *e) {
     Serial.println("Button CLICKED!");
   }
 }
-  
 
 void setup() {
   Serial.begin(115200);
@@ -161,9 +176,4 @@ void setup() {
 void loop() {
   lv_timer_handler();
   delay(5);
-
-  int x, y;
-  if (tft.getTouch(&x, &y)) {
-    Serial.printf("[Direct] Touch detected: x=%d, y=%d\n", x, y);
-  }
 }
