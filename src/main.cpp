@@ -1,8 +1,8 @@
 #include <lvgl.h>
 #include <LovyanGFX.hpp>
 
-static const uint32_t screenWidth  = 320;
-static const uint32_t screenHeight = 480;
+static const uint32_t screenWidth  = 480;
+static const uint32_t screenHeight = 320;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[2][screenWidth * 10];
 
@@ -67,7 +67,7 @@ public: LGFX(void) {
       cfg.y_max = 3732;
       cfg.pin_int = -1;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 0;  // 必要に応じて調整
+      cfg.offset_rotation = 0;
       cfg.spi_host = SPI2_HOST;
       cfg.freq = 1000000;
       cfg.pin_sclk = 14;
@@ -107,7 +107,7 @@ void btn_event_cb(lv_event_t *e) {
 void setup() {
   Serial.begin(115200);
   tft.init();
-  tft.setRotation(1);  // 横型に設定
+  tft.setRotation(1);
 
   lv_init();
   lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * 10);
