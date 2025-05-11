@@ -7,7 +7,6 @@ static const uint32_t draw_buf_lines = 40;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screenWidth * draw_buf_lines];
 
-// グローバルラベル
 lv_obj_t *label;
 
 class LGFX : public lgfx::LGFX_Device {
@@ -65,19 +64,24 @@ public: LGFX(void) {
     }
     {
       auto cfg = _touch_instance.config();
-      cfg.x_min = 222;
-      cfg.x_max = 3367;
-      cfg.y_min = 192;
-      cfg.y_max = 3732;
-      cfg.pin_int = -1;
-      cfg.bus_shared = true;
-      cfg.offset_rotation = 0;
+
+      // ✨ タッチ補正
+      cfg.x_min = 3700;
+      cfg.x_max = 200;
+      cfg.y_min = 200;
+      cfg.y_max = 3700;
+
+      cfg.offset_rotation = 1;  // ← rotation(1) に合わせる
       cfg.spi_host = SPI2_HOST;
       cfg.freq = 1000000;
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
-      cfg.pin_cs = 33;  // ここを他のピン（例: 21, 32, 5）にも試せる
+      cfg.pin_cs = 33;
+
+      cfg.pin_int = -1;
+      cfg.bus_shared = true;
+
       _touch_instance.config(cfg);
       _panel_instance.setTouch(&_touch_instance);
     }
@@ -136,7 +140,6 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
-  // ボタンとラベル
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
   label = lv_label_create(btn);
@@ -144,7 +147,6 @@ void setup() {
   lv_obj_center(label);
   lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_PRESSED, NULL);
 
-  // デバッグ用赤枠
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
@@ -157,7 +159,6 @@ void loop() {
   lv_timer_handler();
   delay(5);
 
-  // タッチ確認（LVGLとは独立に）
   int x, y;
   if (tft.getTouch(&x, &y)) {
     Serial.printf("[Direct] Touch detected: x=%d, y=%d\n", x, y);
