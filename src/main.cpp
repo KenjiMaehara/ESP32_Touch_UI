@@ -5,9 +5,9 @@ static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
 static const uint32_t draw_buf_lines = 40;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * draw_buf_lines];  // シングルバッファ
+static lv_color_t buf[screenWidth * draw_buf_lines];
 
-// ボタンのラベル用のグローバル変数
+// グローバルラベル
 lv_obj_t *label;
 
 class LGFX : public lgfx::LGFX_Device {
@@ -77,7 +77,7 @@ public: LGFX(void) {
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
-      cfg.pin_cs = 33;
+      cfg.pin_cs = 33;  // ここを他のピン（例: 21, 32, 5）にも試せる
       _touch_instance.config(cfg);
       _panel_instance.setTouch(&_touch_instance);
     }
@@ -98,7 +98,7 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   if (tft.getTouch(&data->point.x, &data->point.y)) {
     data->state = LV_INDEV_STATE_PRESSED;
-    Serial.printf("Touch: x=%d, y=%d\n", data->point.x, data->point.y);
+    Serial.printf("[LVGL] Touch: x=%d, y=%d\n", data->point.x, data->point.y);
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
   }
@@ -106,13 +106,11 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 
 void btn_event_cb(lv_event_t *e) {
   lv_event_code_t code = lv_event_get_code(e);
-  Serial.printf("Event code: %d\n", code);
-
   if (code == LV_EVENT_PRESSED) {
+    Serial.println("Button PRESSED event received");
     lv_label_set_text(label, "PRESSED!");
   }
 }
-  
 
 void setup() {
   Serial.begin(115200);
@@ -144,18 +142,24 @@ void setup() {
   label = lv_label_create(btn);
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
-  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_PRESSED, NULL);  // ここを修正
+  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_PRESSED, NULL);
 
-  // デバッグ用 赤枠
+  // デバッグ用赤枠
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_obj_move_background(bg_rect);  // 背面に移動
+  lv_obj_move_background(bg_rect);
 }
 
 void loop() {
   lv_timer_handler();
   delay(5);
+
+  // タッチ確認（LVGLとは独立に）
+  int x, y;
+  if (tft.getTouch(&x, &y)) {
+    Serial.printf("[Direct] Touch detected: x=%d, y=%d\n", x, y);
+  }
 }
