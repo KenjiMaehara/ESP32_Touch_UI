@@ -6,11 +6,9 @@ TFT_eSPI tft = TFT_eSPI();
 
 #define BACKLIGHT_PIN 27
 
-// バッファサイズ
 static lv_color_t buf[LV_HOR_RES_MAX * 10];
 static lv_disp_draw_buf_t draw_buf;
 
-// 描画フラッシュ関数
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
@@ -26,26 +24,22 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 void setup() {
     Serial.begin(115200);
 
-    // バックライトON
     pinMode(BACKLIGHT_PIN, OUTPUT);
-    digitalWrite(BACKLIGHT_PIN, HIGH);
+    digitalWrite(BACKLIGHT_PIN, HIGH);  // バックライトON
 
-    // TFT 初期化
     tft.begin();
-    tft.setRotation(1);
+    tft.setRotation(1);  // 横向き（右向き）
     tft.fillScreen(TFT_BLACK);
 
-    // LVGL 初期化
     lv_init();
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, LV_HOR_RES_MAX * 10);
 
-    // LVGLディスプレイドライバ登録
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
     disp_drv.flush_cb = my_disp_flush;
     disp_drv.draw_buf = &draw_buf;
-    disp_drv.hor_res = 320;
-    disp_drv.ver_res = 480;
+    disp_drv.hor_res = 480;  // 横幅
+    disp_drv.ver_res = 320;  // 高さ
     lv_disp_drv_register(&disp_drv);
 
     // ボタン作成
@@ -58,6 +52,6 @@ void setup() {
 }
 
 void loop() {
-    lv_timer_handler();  // LVGL処理ループ
+    lv_timer_handler();
     delay(5);
 }
