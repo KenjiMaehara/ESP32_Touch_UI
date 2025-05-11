@@ -5,21 +5,21 @@
 
 TFT_eSPI tft = TFT_eSPI();
 
-// バックライト
+// バックライト制御ピン
 #define BACKLIGHT_PIN 27
 
-// 抵抗膜タッチパネルピン定義
-#define XP 27
+// タッチパネルピン定義（ESP32-32E対応）
+#define XP 33
 #define XM 26
 #define YP 25
-#define YM 33
+#define YM 27
 
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 500);
 
 static lv_color_t buf[LV_HOR_RES_MAX * 10];
 static lv_disp_draw_buf_t draw_buf;
 
-// 描画フラッシュ関数
+// 画面描画フラッシュ関数
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
@@ -32,11 +32,20 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
     lv_disp_flush_ready(disp);
 }
 
-// タッチ入力取得関数
+// タッチ読み取り関数
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     TSPoint p = ts.getPoint();
+
+    // デバッグ出力
+    Serial.print("z=");
+    Serial.print(p.z);
+    Serial.print(" x=");
+    Serial.print(p.x);
+    Serial.print(" y=");
+    Serial.println(p.y);
+
     if (p.z > 300 && p.z < 1000) {
-        int x = map(p.y, 200, 3800, 0, 480);  // 横型
+        int x = map(p.y, 200, 3800, 0, 480);  // 必要に応じて調整
         int y = map(p.x, 300, 3700, 0, 320);
         data->point.x = x;
         data->point.y = y;
@@ -46,7 +55,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     }
 }
 
-// ボタンイベントコールバック
+// ボタンイベント
 void btn_event_cb(lv_event_t *e) {
     lv_obj_t *label = (lv_obj_t *)lv_event_get_user_data(e);
     lv_label_set_text(label, "PRESSED!");
@@ -59,7 +68,7 @@ void setup() {
     digitalWrite(BACKLIGHT_PIN, HIGH);
 
     tft.begin();
-    tft.setRotation(1);  // 横型
+    tft.setRotation(1);  // 横型表示
     tft.fillScreen(TFT_BLACK);
 
     lv_init();
@@ -73,7 +82,7 @@ void setup() {
     disp_drv.ver_res = 320;
     lv_disp_drv_register(&disp_drv);
 
-    // 入力デバイス登録
+    // タッチ入力デバイス登録
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
