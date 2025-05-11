@@ -7,6 +7,9 @@ static const uint32_t draw_buf_lines = 40;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screenWidth * draw_buf_lines];  // シングルバッファ
 
+// ボタンのラベル用のグローバル変数
+lv_obj_t *label;
+
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796  _panel_instance;
   lgfx::Bus_SPI       _bus_instance;
@@ -102,8 +105,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 }
 
 void btn_event_cb(lv_event_t *e) {
-  lv_obj_t *label = (lv_obj_t *)lv_event_get_user_data(e);
-  lv_label_set_text(label, "PRESSED!");
+  lv_label_set_text(label, "PRESSED!");  // グローバル変数を直接書き換え
 }
 
 void setup() {
@@ -133,10 +135,10 @@ void setup() {
   // ボタンとラベル
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-  lv_obj_t *label = lv_label_create(btn);
+  label = lv_label_create(btn);
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
-  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, label);
+  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, NULL);  // user_data 不要
 
   // デバッグ用 赤枠
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
@@ -144,7 +146,7 @@ void setup() {
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_obj_move_background(bg_rect);  // ← これを追加（背面に送る）
+  lv_obj_move_background(bg_rect);  // 背面に移動
 }
 
 void loop() {
