@@ -3,9 +3,9 @@
 
 static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
-static const uint32_t draw_buf_lines = 10;
+static const uint32_t draw_buf_lines = 40;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[2][screenWidth * draw_buf_lines];
+static lv_color_t buf[screenWidth * draw_buf_lines];  // シングルバッファに変更
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796  _panel_instance;
@@ -35,13 +35,10 @@ public: LGFX(void) {
       cfg.pin_cs = 15;
       cfg.pin_rst = -1;
       cfg.pin_busy = -1;
-
       cfg.memory_width = screenHeight;
       cfg.memory_height = screenWidth;
-
-      cfg.panel_width = screenHeight;   // 320
-      cfg.panel_height = screenWidth;  // 480
-
+      cfg.panel_width = screenHeight;
+      cfg.panel_height = screenWidth;
       cfg.offset_x = 0;
       cfg.offset_y = 0;
       cfg.offset_rotation = 0;
@@ -111,22 +108,19 @@ void btn_event_cb(lv_event_t *e) {
 void setup() {
   Serial.begin(115200);
   tft.init();
-  tft.setRotation(1); // 必要に応じて 0〜3 を試してください
+  tft.setRotation(1);
 
   lv_init();
-  lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * draw_buf_lines);
+  lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * draw_buf_lines);
 
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
   disp_drv.flush_cb = my_disp_flush;
   disp_drv.draw_buf = &draw_buf;
-
-  disp_drv.hor_res = screenHeight;  // 320
-  disp_drv.ver_res = screenWidth;   // 480
-
-  disp_drv.sw_rotate = 1;                         // ← 追加
-  disp_drv.rotated = LV_DISP_ROT_90;              // ← 追加（LovyanGFXの setRotation(1) に合わせる）
-
+  disp_drv.hor_res = screenHeight;
+  disp_drv.ver_res = screenWidth;
+  disp_drv.sw_rotate = 1;
+  disp_drv.rotated = LV_DISP_ROT_90;
   lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
@@ -135,7 +129,6 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
-  // ボタン作成
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
   lv_obj_t *label = lv_label_create(btn);
@@ -143,12 +136,10 @@ void setup() {
   lv_obj_center(label);
   lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, label);
 
-  // 画面全体に赤枠表示（デバッグ用）
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
-  //lv_obj_set_size(bg_rect, screenWidth, screenHeight);
-  lv_obj_set_size(bg_rect, screenHeight, screenWidth);  // ← 幅と高さを入れ替え
+  lv_obj_set_size(bg_rect, screenHeight, screenWidth);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
 }
 
