@@ -117,10 +117,10 @@ void setup() {
   lv_disp_drv_init(&disp_drv);
   disp_drv.flush_cb = my_disp_flush;
   disp_drv.draw_buf = &draw_buf;
-  disp_drv.hor_res = screenHeight;
-  disp_drv.ver_res = screenWidth;
-  disp_drv.sw_rotate = 1;
-  disp_drv.rotated = LV_DISP_ROT_90;
+  disp_drv.hor_res = screenWidth;
+  disp_drv.ver_res = screenHeight;
+  disp_drv.sw_rotate = 0;                 // ← 無効化
+  disp_drv.rotated = LV_DISP_ROT_NONE;    // ← 無効化
   lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
@@ -139,7 +139,9 @@ void setup() {
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
-  lv_obj_set_size(bg_rect, screenHeight, screenWidth);
+
+  lv_obj_set_size(bg_rect, screenWidth, screenHeight);  // ← 480x320に戻す
+
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
 }
 
