@@ -67,7 +67,7 @@ public: LGFX(void) {
       cfg.y_max = 3732;
       cfg.pin_int = -1;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 6;
+      cfg.offset_rotation = 0;  // 必要に応じて調整
       cfg.spi_host = SPI2_HOST;
       cfg.freq = 1000000;
       cfg.pin_sclk = 14;
@@ -107,7 +107,7 @@ void btn_event_cb(lv_event_t *e) {
 void setup() {
   Serial.begin(115200);
   tft.init();
-  tft.setRotation(1);
+  tft.setRotation(1);  // 横型に設定
 
   lv_init();
   lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * 10);
@@ -118,6 +118,8 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
+  disp_drv.sw_rotate = 0;
+  disp_drv.rotated = LV_DISP_ROT_NONE;
   lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
