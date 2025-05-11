@@ -4,7 +4,7 @@
 static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[2][screenWidth * 10];
+static lv_color_t buf[2][screenWidth * 40];  // バッファ高さを増加（40行）
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796  _panel_instance;
@@ -13,23 +13,24 @@ class LGFX : public lgfx::LGFX_Device {
   lgfx::Touch_XPT2046 _touch_instance;
 
 public: LGFX(void) {
-    { // SPI bus config
+    {
       auto cfg = _bus_instance.config();
-      cfg.spi_host   = SPI2_HOST;
-      cfg.spi_mode   = 0;
+      cfg.spi_host = SPI2_HOST;
+      cfg.spi_mode = 0;
       cfg.freq_write = 80000000;
-      cfg.freq_read  = 16000000;
-      cfg.spi_3wire  = false;
-      cfg.use_lock   = true;
+      cfg.freq_read = 16000000;
+      cfg.spi_3wire = false;
+      cfg.use_lock = true;
       cfg.dma_channel = SPI_DMA_CH_AUTO;
-      cfg.pin_sclk   = 14;
-      cfg.pin_mosi   = 13;
-      cfg.pin_miso   = 12;
-      cfg.pin_dc     = 2;
+      cfg.pin_sclk = 14;
+      cfg.pin_mosi = 13;
+      cfg.pin_miso = 12;
+      cfg.pin_dc = 2;
       _bus_instance.config(cfg);
       _panel_instance.setBus(&_bus_instance);
     }
-    { // panel config
+
+    {
       auto cfg = _panel_instance.config();
       cfg.pin_cs = 15;
       cfg.pin_rst = -1;
@@ -50,7 +51,8 @@ public: LGFX(void) {
       cfg.bus_shared = false;
       _panel_instance.config(cfg);
     }
-    { // backlight config
+
+    {
       auto cfg = _light_instance.config();
       cfg.pin_bl = 27;
       cfg.invert = false;
@@ -59,7 +61,8 @@ public: LGFX(void) {
       _light_instance.config(cfg);
       _panel_instance.setLight(&_light_instance);
     }
-    { // touch config
+
+    {
       auto cfg = _touch_instance.config();
       cfg.x_min = 222;
       cfg.x_max = 3367;
@@ -77,6 +80,7 @@ public: LGFX(void) {
       _touch_instance.config(cfg);
       _panel_instance.setTouch(&_touch_instance);
     }
+
     setPanel(&_panel_instance);
   }
 };
@@ -110,7 +114,7 @@ void setup() {
   tft.setRotation(1);
 
   lv_init();
-  lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * 10);
+  lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * 40);
 
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
