@@ -105,8 +105,14 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 }
 
 void btn_event_cb(lv_event_t *e) {
-  lv_label_set_text(label, "PRESSED!");  // グローバル変数を直接書き換え
+  lv_event_code_t code = lv_event_get_code(e);
+  Serial.printf("Event code: %d\n", code);
+
+  if (code == LV_EVENT_PRESSED) {
+    lv_label_set_text(label, "PRESSED!");
+  }
 }
+  
 
 void setup() {
   Serial.begin(115200);
@@ -138,7 +144,7 @@ void setup() {
   label = lv_label_create(btn);
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
-  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, NULL);  // user_data 不要
+  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_PRESSED, NULL);  // ここを修正
 
   // デバッグ用 赤枠
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
