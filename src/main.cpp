@@ -64,12 +64,10 @@ public: LGFX(void) {
     }
     {
       auto cfg = _touch_instance.config();
-
       cfg.x_min = 3700;
       cfg.x_max = 200;
       cfg.y_min = 200;
       cfg.y_max = 3700;
-
       cfg.offset_rotation = 1;
       cfg.spi_host = SPI2_HOST;
       cfg.freq = 1000000;
@@ -79,7 +77,6 @@ public: LGFX(void) {
       cfg.pin_cs = 33;
       cfg.pin_int = -1;
       cfg.bus_shared = true;
-
       _touch_instance.config(cfg);
       _panel_instance.setTouch(&_touch_instance);
     }
@@ -97,7 +94,6 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
   lv_disp_flush_ready(disp);
 }
 
-// 修正版：状態遷移が起きたときのみLVGLに通知
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   static bool last_pressed = false;
   int x, y;
@@ -158,22 +154,24 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
-  lv_obj_t *btn = lv_btn_create(lv_scr_act());
-  lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-  label = lv_label_create(btn);
-  lv_label_set_text(label, "Click me!");
-  lv_obj_center(label);
-  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
-
+  // 背景（先に作成）
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
   lv_obj_move_background(bg_rect);
+
+  // ボタン（後に作成）
+  lv_obj_t *btn = lv_btn_create(lv_scr_act());
+  lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
+  label = lv_label_create(btn);
+  lv_label_set_text(label, "Click me!");
+  lv_obj_center(label);
+  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
 }
 
 void loop() {
   lv_timer_handler();
-  delay(5);
+  delay(1);  // 高頻度ポーリング
 }
