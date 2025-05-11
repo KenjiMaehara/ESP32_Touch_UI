@@ -1,11 +1,12 @@
 #include <lvgl.h>
 #include <LovyanGFX.hpp>
+#include "esp_heap_caps.h"
 
 static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
-static const uint32_t draw_buf_lines = 40;
+static lv_color_t buf1[screenWidth * 40];
+static lv_color_t* buf2 = nullptr;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * draw_buf_lines];
 
 lv_obj_t *label;
 
@@ -130,7 +131,15 @@ void setup() {
   tft.setRotation(1);
 
   lv_init();
-  lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * draw_buf_lines);
+
+  // ✅ buf2 を動的に確保（DMA対応）
+  buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+  if (!buf2) {
+    Serial.println("Error: buf2 allocation failed!");
+    while (true);  // フリーズして通知
+  }
+
+  lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
 
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
@@ -146,16 +155,14 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
-  // 背景（赤枠）← タッチを奪わないように非クリック化
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);  // ← ★ これが重要！
+  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);  // タッチを奪わない
   lv_obj_move_background(bg_rect);
 
-  // ボタン
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
   label = lv_label_create(btn);
