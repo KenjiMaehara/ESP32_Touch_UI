@@ -104,6 +104,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     last_point.x = x;
     last_point.y = y;
     pressed = true;
+    Serial.printf("Touch: x=%d, y=%d\n", x, y);  // デバッグ用出力
   } else {
     pressed = false;
   }
@@ -132,11 +133,10 @@ void setup() {
 
   lv_init();
 
-  // ✅ buf2 を動的に確保（DMA対応）
   buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
   if (!buf2) {
     Serial.println("Error: buf2 allocation failed!");
-    while (true);  // フリーズして通知
+    while (true);
   }
 
   lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
@@ -160,7 +160,7 @@ void setup() {
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);  // タッチを奪わない
+  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);
   lv_obj_move_background(bg_rect);
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
