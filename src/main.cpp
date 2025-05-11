@@ -1,15 +1,9 @@
-// main.cpp
 #include <lvgl.h>
 #include <TFT_eSPI.h>
-#include <XPT2046_Touchscreen.h>
 
 TFT_eSPI tft = TFT_eSPI();
+
 #define BACKLIGHT_PIN 27
-
-#define TOUCH_CS 33
-#define TOUCH_IRQ 36
-
-XPT2046_Touchscreen ts(TOUCH_CS, TOUCH_IRQ);
 
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[LV_HOR_RES_MAX * 10];
@@ -25,12 +19,12 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 }
 
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
-    if (ts.touched()) {
-        TS_Point p = ts.getPoint();
-        data->point.x = map(p.x, 200, 3900, 0, 480);  // 調整必要
-        data->point.y = map(p.y, 200, 3900, 0, 320);
+    uint16_t touchX, touchY;
+    if (tft.getTouch(&touchX, &touchY)) {
+        data->point.x = touchX;
+        data->point.y = touchY;
         data->state = LV_INDEV_STATE_PRESSED;
-        Serial.printf("Touch: x=%d y=%d\n", data->point.x, data->point.y);
+        Serial.printf("Touch: x=%d y=%d\n", touchX, touchY);
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
     }
@@ -49,9 +43,6 @@ void setup() {
     tft.begin();
     tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
-
-    ts.begin();
-    ts.setRotation(1);
 
     lv_init();
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, LV_HOR_RES_MAX * 10);
