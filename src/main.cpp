@@ -132,6 +132,11 @@ void btn_event_cb(lv_event_t *e) {
 
 void setup() {
   Serial.begin(115200);
+
+  // ✅ ここで LVGL の最大解像度を出力
+  Serial.printf("LV_HOR_RES_MAX = %d\n", LV_HOR_RES_MAX);
+  Serial.printf("LV_VER_RES_MAX = %d\n", LV_VER_RES_MAX);
+
   tft.init();
   tft.setRotation(1);
 
@@ -154,7 +159,6 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
-  // 背景（先に作成）
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
@@ -162,7 +166,6 @@ void setup() {
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
   lv_obj_move_background(bg_rect);
 
-  // ボタン（後に作成）
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
   label = lv_label_create(btn);
@@ -173,5 +176,5 @@ void setup() {
 
 void loop() {
   lv_timer_handler();
-  delay(1);  // 高頻度ポーリング
+  delay(1);
 }
