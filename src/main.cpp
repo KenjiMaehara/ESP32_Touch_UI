@@ -1,61 +1,41 @@
-
+// main.cpp
 #include <lvgl.h>
 #include <TFT_eSPI.h>
-#include <TouchScreen.h>
+#include <XPT2046_Touchscreen.h>
 
 TFT_eSPI tft = TFT_eSPI();
-
-// バックライト制御ピン
 #define BACKLIGHT_PIN 27
 
-// タッチパネルピン定義（ESP32アナログ対応ピン使用）
-#define XP 32
-#define XM 33
-#define YP 25
-#define YM 26
+#define TOUCH_CS 33
+#define TOUCH_IRQ 36
 
-TouchScreen ts = TouchScreen(XP, YP, XM, YM, 500);
+XPT2046_Touchscreen ts(TOUCH_CS, TOUCH_IRQ);
 
-static lv_color_t buf[LV_HOR_RES_MAX * 10];
 static lv_disp_draw_buf_t draw_buf;
+static lv_color_t buf[LV_HOR_RES_MAX * 10];
 
-// 画面描画フラッシュ関数
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
-
     tft.startWrite();
     tft.setAddrWindow(area->x1, area->y1, w, h);
-    tft.pushColors((uint16_t *)&color_p->full, w * h, false);
+    tft.pushColors((uint16_t *)&color_p->full, w * h, true);
     tft.endWrite();
-
     lv_disp_flush_ready(disp);
 }
 
-// タッチ読み取り関数
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
-    TSPoint p = ts.getPoint();
-
-    // デバッグ出力
-    Serial.print("z=");
-    Serial.print(p.z);
-    Serial.print(" x=");
-    Serial.print(p.x);
-    Serial.print(" y=");
-    Serial.println(p.y);
-
-    if (p.z > 300 && p.z < 1000) {
-        int x = map(p.y, 200, 3800, 0, 480);  // 必要に応じて調整
-        int y = map(p.x, 300, 3700, 0, 320);
-        data->point.x = x;
-        data->point.y = y;
+    if (ts.touched()) {
+        TS_Point p = ts.getPoint();
+        data->point.x = map(p.x, 200, 3900, 0, 480);  // 調整必要
+        data->point.y = map(p.y, 200, 3900, 0, 320);
         data->state = LV_INDEV_STATE_PRESSED;
+        Serial.printf("Touch: x=%d y=%d\n", data->point.x, data->point.y);
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
     }
 }
 
-// ボタンイベント
 void btn_event_cb(lv_event_t *e) {
     lv_obj_t *label = (lv_obj_t *)lv_event_get_user_data(e);
     lv_label_set_text(label, "PRESSED!");
@@ -63,13 +43,15 @@ void btn_event_cb(lv_event_t *e) {
 
 void setup() {
     Serial.begin(115200);
-
     pinMode(BACKLIGHT_PIN, OUTPUT);
     digitalWrite(BACKLIGHT_PIN, HIGH);
 
     tft.begin();
-    tft.setRotation(1);  // 横型表示
+    tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
+
+    ts.begin();
+    ts.setRotation(1);
 
     lv_init();
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, LV_HOR_RES_MAX * 10);
@@ -82,14 +64,12 @@ void setup() {
     disp_drv.ver_res = 320;
     lv_disp_drv_register(&disp_drv);
 
-    // タッチ入力デバイス登録
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = my_touchpad_read;
     lv_indev_drv_register(&indev_drv);
 
-    // ボタン
     lv_obj_t *btn = lv_btn_create(lv_scr_act());
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
 
