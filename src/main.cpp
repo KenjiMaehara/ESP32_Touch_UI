@@ -3,8 +3,9 @@
 
 static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
+static const uint32_t draw_buf_lines = 10;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[2][screenWidth * 10];  // メモリ節約のため10ラインに縮小
+static lv_color_t buf[2][screenWidth * draw_buf_lines];
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796  _panel_instance;
@@ -84,9 +85,10 @@ public: LGFX(void) {
 LGFX tft;
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
+  Serial.printf("flush: x1=%d y1=%d x2=%d y2=%d\n", area->x1, area->y1, area->x2, area->y2);
   tft.startWrite();
   tft.setAddrWindow(area->x1, area->y1, area->x2 - area->x1 + 1, area->y2 - area->y1 + 1);
-  tft.pushColors((uint16_t *)&color_p->full, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1), true);
+  tft.pushColors((uint16_t *)color_p, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1), true);
   tft.endWrite();
   lv_disp_flush_ready(disp);
 }
@@ -110,7 +112,7 @@ void setup() {
   tft.setRotation(1);
 
   lv_init();
-  lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * 10);  // メモリ節約のため10ラインに変更
+  lv_disp_draw_buf_init(&draw_buf, buf[0], buf[1], screenWidth * draw_buf_lines);
 
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
