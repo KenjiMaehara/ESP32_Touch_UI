@@ -94,30 +94,22 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
   lv_disp_flush_ready(disp);
 }
 
+// ✅ 修正版（安定した状態検出）
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
-  static bool last_pressed = false;
+  static bool pressed = false;
+  static lv_point_t last_point;
+
   int x, y;
-
-  bool touched = tft.getTouch(&x, &y);
-
-  if (touched) {
-    data->point.x = x;
-    data->point.y = y;
-
-    if (!last_pressed) {
-      data->state = LV_INDEV_STATE_PRESSED;
-      last_pressed = true;
-      Serial.printf("[LVGL] Touch START: x=%d, y=%d\n", x, y);
-    } else {
-      data->state = LV_INDEV_STATE_PRESSED;
-    }
+  if (tft.getTouch(&x, &y)) {
+    last_point.x = x;
+    last_point.y = y;
+    pressed = true;
   } else {
-    data->state = LV_INDEV_STATE_RELEASED;
-    if (last_pressed) {
-      Serial.println("[LVGL] Touch RELEASED");
-      last_pressed = false;
-    }
+    pressed = false;
   }
+
+  data->point = last_point;
+  data->state = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
 }
 
 void btn_event_cb(lv_event_t *e) {
@@ -133,7 +125,7 @@ void btn_event_cb(lv_event_t *e) {
 void setup() {
   Serial.begin(115200);
 
-  // ✅ ここで LVGL の最大解像度を出力
+  // ✅ LVGL最大解像度出力
   Serial.printf("LV_HOR_RES_MAX = %d\n", LV_HOR_RES_MAX);
   Serial.printf("LV_VER_RES_MAX = %d\n", LV_VER_RES_MAX);
 
