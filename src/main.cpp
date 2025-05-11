@@ -5,7 +5,7 @@ static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
 static const uint32_t draw_buf_lines = 40;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * draw_buf_lines];  // シングルバッファに変更
+static lv_color_t buf[screenWidth * draw_buf_lines];  // シングルバッファ
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796  _panel_instance;
@@ -95,6 +95,7 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   if (tft.getTouch(&data->point.x, &data->point.y)) {
     data->state = LV_INDEV_STATE_PRESSED;
+    Serial.printf("Touch: x=%d, y=%d\n", data->point.x, data->point.y);
   } else {
     data->state = LV_INDEV_STATE_RELEASED;
   }
@@ -119,8 +120,8 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
-  disp_drv.sw_rotate = 0;                 // ← 無効化
-  disp_drv.rotated = LV_DISP_ROT_NONE;    // ← 無効化
+  disp_drv.sw_rotate = 0;
+  disp_drv.rotated = LV_DISP_ROT_NONE;
   lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
@@ -129,6 +130,7 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
+  // ボタンとラベル
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
   lv_obj_t *label = lv_label_create(btn);
@@ -136,12 +138,11 @@ void setup() {
   lv_obj_center(label);
   lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, label);
 
+  // デバッグ用 赤枠
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
-
-  lv_obj_set_size(bg_rect, screenWidth, screenHeight);  // ← 480x320に戻す
-
+  lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
 }
 
