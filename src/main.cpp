@@ -94,7 +94,6 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
   lv_disp_flush_ready(disp);
 }
 
-// ✅ 修正版（安定した状態検出）
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   static bool pressed = false;
   static lv_point_t last_point;
@@ -124,8 +123,6 @@ void btn_event_cb(lv_event_t *e) {
 
 void setup() {
   Serial.begin(115200);
-
-  // ✅ LVGL最大解像度出力
   Serial.printf("LV_HOR_RES_MAX = %d\n", LV_HOR_RES_MAX);
   Serial.printf("LV_VER_RES_MAX = %d\n", LV_VER_RES_MAX);
 
@@ -141,8 +138,6 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
-  disp_drv.sw_rotate = 0;
-  disp_drv.rotated = LV_DISP_ROT_NONE;
   lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
@@ -151,13 +146,16 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
+  // 背景（赤枠）← タッチを奪わないように非クリック化
   lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
   lv_obj_set_style_border_width(bg_rect, 4, 0);
   lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
   lv_obj_set_size(bg_rect, screenWidth, screenHeight);
   lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
+  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);  // ← ★ これが重要！
   lv_obj_move_background(bg_rect);
 
+  // ボタン
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
   label = lv_label_create(btn);
