@@ -8,11 +8,11 @@ TFT_eSPI tft = TFT_eSPI();
 // バックライト制御ピン
 #define BACKLIGHT_PIN 27
 
-// タッチパネルピン定義（ESP32-32E対応）
-#define XP 33
-#define XM 26
+// タッチパネルピン定義（ESP32アナログ対応ピン使用）
+#define XP 32
+#define XM 33
 #define YP 25
-#define YM 27
+#define YM 26
 
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 500);
 
