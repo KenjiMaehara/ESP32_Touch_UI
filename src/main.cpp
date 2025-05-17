@@ -130,6 +130,7 @@ void btn_event_cb(lv_event_t *e) {
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("setup complete");
   tft.init();
   tft.setRotation(1);
   lv_init();
@@ -166,5 +167,5 @@ void setup() {
 
 void loop() {
   lv_timer_handler();
-  delay(5);
+  delay(1);
 }
