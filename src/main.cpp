@@ -104,7 +104,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     last_point.x = x;
     last_point.y = y;
     pressed = true;
-    Serial.printf("Touch: x=%d, y=%d\n", x, y);  // デバッグ表示
+    Serial.printf("Touch: x=%d, y=%d\n", x, y);
   } else {
     pressed = false;
   }
@@ -115,11 +115,24 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 
 void btn_event_cb(lv_event_t *e) {
   lv_event_code_t code = lv_event_get_code(e);
+  lv_obj_t *btn = lv_event_get_target(e);
   Serial.printf("[Event] code = %d\n", code);
+
+  if (code == LV_EVENT_PRESSED) {
+    lv_label_set_text(label, "PRESSING...");
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x0077FF), LV_PART_MAIN);
+    Serial.println("Button PRESSED!");
+  }
 
   if (code == LV_EVENT_CLICKED) {
     lv_label_set_text(label, "PRESSED!");
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x00FF00), LV_PART_MAIN);
     Serial.println("Button CLICKED!");
+  }
+
+  if (code == LV_EVENT_RELEASED) {
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x444444), LV_PART_MAIN);
+    Serial.println("Button RELEASED!");
   }
 }
 
@@ -163,7 +176,11 @@ void setup() {
   lv_obj_move_background(bg_rect);
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
+  lv_obj_set_size(btn, 200, 80);
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
+  lv_obj_set_style_bg_color(btn, lv_color_hex(0x444444), LV_PART_MAIN);
+  lv_obj_set_style_radius(btn, 10, LV_PART_MAIN);
+
   label = lv_label_create(btn);
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
