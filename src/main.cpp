@@ -176,6 +176,7 @@ void setup() {
 }
 
 void loop() {
+  Serial.println("loop tick");
   lv_timer_handler();
-  delay(1);
+  delay(500);
 }
