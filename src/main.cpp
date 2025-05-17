@@ -155,6 +155,7 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
+  disp_drv.full_refresh = 1; // ← 毎回描画強制
   disp = lv_disp_drv_register(&disp_drv);
 
   lv_indev_drv_init(&indev_drv);
