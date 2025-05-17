@@ -175,6 +175,16 @@ void setup() {
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
   lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
+
+  // 強制描画: 初期画面で動かすためのピクセル配置
+  lv_obj_t* dot = lv_obj_create(lv_scr_act());
+  lv_obj_set_size(dot, 1, 1);
+  lv_obj_set_style_bg_color(dot, lv_color_hex(0x000000), 0);
+  lv_obj_align(dot, LV_ALIGN_TOP_LEFT, 0, 0);
+  lv_refr_now(NULL);
+
+  // TFT画面自体への直接描画（デバイスの動作確認）
+  tft.fillScreen(TFT_RED);
 }
 
 void loop() {
