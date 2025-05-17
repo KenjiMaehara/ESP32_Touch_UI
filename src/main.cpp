@@ -75,7 +75,7 @@ public: LGFX(void) {
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
-      cfg.pin_cs = 39;
+      cfg.pin_cs = 33;
       cfg.pin_int = -1;
       cfg.bus_shared = true;
       _touch_instance.config(cfg);
