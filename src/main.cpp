@@ -157,7 +157,12 @@ void setup() {
   lv_indev_drv_init(&indev_drv);
   indev_drv.type = LV_INDEV_TYPE_POINTER;
   indev_drv.read_cb = my_touchpad_read;
-  lv_indev_drv_register(&indev_drv);
+  lv_indev_t* indev = lv_indev_drv_register(&indev_drv);
+  if (indev == NULL) {
+    Serial.println("Failed to register input device!");
+  } else {
+    Serial.println("Input device registered OK.");
+  }
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
