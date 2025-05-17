@@ -75,7 +75,7 @@ public: LGFX(void) {
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
-      cfg.pin_cs = 33;  // 正しいCSピン
+      cfg.pin_cs = 33;
       cfg.pin_int = -1;
       cfg.bus_shared = true;
       _touch_instance.config(cfg);
@@ -151,7 +151,7 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
-  lv_disp_drv_register(&disp_drv);
+  lv_disp_t* disp = lv_disp_drv_register(&disp_drv);
 
   static lv_indev_drv_t indev_drv;
   lv_indev_drv_init(&indev_drv);
@@ -163,6 +163,8 @@ void setup() {
   } else {
     Serial.println("Input device registered OK.");
   }
+
+  lv_indev_set_disp(indev, disp); // ← 表示とタッチの関連付け
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
