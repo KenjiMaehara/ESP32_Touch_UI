@@ -15,6 +15,6 @@
 #define LV_LOG_LEVEL            LV_LOG_LEVEL_WARN
 
 #define LV_COLOR_DEPTH          16
-#define LV_MEM_SIZE             (64U * 1024U)
+#define LV_MEM_SIZE             (32U * 1024U)  // サイズを32KBに調整
 
 #endif // LV_CONF_H

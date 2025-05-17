@@ -4,7 +4,7 @@
 
 static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
-static lv_color_t buf1[screenWidth * 40];
+static lv_color_t* buf1 = nullptr;
 static lv_color_t* buf2 = nullptr;
 static lv_disp_draw_buf_t draw_buf;
 
@@ -142,9 +142,10 @@ void setup() {
   tft.setRotation(1);
   lv_init();
 
+  buf1 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
   buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-  if (!buf2) {
-    Serial.println("Failed to allocate draw buffer!");
+  if (!buf1 || !buf2) {
+    Serial.println("Failed to allocate display buffers!");
     while (1);
   }
 
@@ -155,7 +156,7 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
-  disp_drv.full_refresh = 1; // ← 毎回描画強制
+  disp_drv.full_refresh = 1;
   disp = lv_disp_drv_register(&disp_drv);
 
   lv_indev_drv_init(&indev_drv);
