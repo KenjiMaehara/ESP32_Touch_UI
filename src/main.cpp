@@ -65,7 +65,7 @@ public: LGFX(void) {
     }
     {
       auto cfg = _touch_instance.config();
-      cfg.x_min = 250;      // 実測に基づく補正
+      cfg.x_min = 250;
       cfg.x_max = 3900;
       cfg.y_min = 300;
       cfg.y_max = 3700;
@@ -129,5 +129,48 @@ void setup() {
   Serial.printf("LV_VER_RES_MAX = %d\n", LV_VER_RES_MAX);
 
   tft.init();
-  tft.setRotation(1);  // offset_rotation =_
+  tft.setRotation(1);
+  lv_init();
+
+  buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+  if (!buf2) {
+    Serial.println("Error: buf2 allocation failed!");
+    while (true);
+  }
+
+  lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
+
+  static lv_disp_drv_t disp_drv;
+  lv_disp_drv_init(&disp_drv);
+  disp_drv.flush_cb = my_disp_flush;
+  disp_drv.draw_buf = &draw_buf;
+  disp_drv.hor_res = screenWidth;
+  disp_drv.ver_res = screenHeight;
+  lv_disp_drv_register(&disp_drv);
+
+  static lv_indev_drv_t indev_drv;
+  lv_indev_drv_init(&indev_drv);
+  indev_drv.type = LV_INDEV_TYPE_POINTER;
+  indev_drv.read_cb = my_touchpad_read;
+  lv_indev_drv_register(&indev_drv);
+
+  lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
+  lv_obj_set_style_border_width(bg_rect, 4, 0);
+  lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
+  lv_obj_set_size(bg_rect, screenWidth, screenHeight);
+  lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
+  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);
+  lv_obj_move_background(bg_rect);
+
+  lv_obj_t *btn = lv_btn_create(lv_scr_act());
+  lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
+  label = lv_label_create(btn);
+  lv_label_set_text(label, "Click me!");
+  lv_obj_center(label);
+  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
+}
+
+void loop() {
+  lv_timer_handler();
+  delay(1);
 }
