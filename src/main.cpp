@@ -10,6 +10,11 @@ static lv_disp_draw_buf_t draw_buf;
 
 lv_obj_t *label;
 
+static lv_disp_drv_t disp_drv;
+static lv_indev_drv_t indev_drv;
+static lv_disp_t* disp;
+static lv_indev_t* indev;
+
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796  _panel_instance;
   lgfx::Bus_SPI       _bus_instance;
@@ -145,26 +150,22 @@ void setup() {
 
   lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
 
-  static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
   disp_drv.flush_cb = my_disp_flush;
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
-  lv_disp_t* disp = lv_disp_drv_register(&disp_drv);
+  disp = lv_disp_drv_register(&disp_drv);
 
-  static lv_indev_drv_t indev_drv;
   lv_indev_drv_init(&indev_drv);
   indev_drv.type = LV_INDEV_TYPE_POINTER;
   indev_drv.read_cb = my_touchpad_read;
-  lv_indev_t* indev = lv_indev_drv_register(&indev_drv);
+  indev = lv_indev_drv_register(&indev_drv);
   if (indev == NULL) {
     Serial.println("Failed to register input device!");
   } else {
     Serial.println("Input device registered OK.");
   }
-
-  lv_indev_set_disp(indev, disp); // ← 表示とタッチの関連付け
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
