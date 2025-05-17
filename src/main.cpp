@@ -65,10 +65,10 @@ public: LGFX(void) {
     }
     {
       auto cfg = _touch_instance.config();
-      cfg.x_min = 250;
-      cfg.x_max = 3900;
-      cfg.y_min = 300;
-      cfg.y_max = 3700;
+      cfg.x_min = 0;
+      cfg.x_max = 4095;
+      cfg.y_min = 0;
+      cfg.y_max = 4095;
       cfg.offset_rotation = 1;
       cfg.spi_host = SPI2_HOST;
       cfg.freq = 1000000;
@@ -107,6 +107,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     Serial.printf("Touch: x=%d, y=%d\n", x, y);
   } else {
     pressed = false;
+    Serial.println("no touch");
   }
 
   data->point = last_point;
