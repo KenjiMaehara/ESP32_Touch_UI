@@ -29,3 +29,11 @@ LVGL + LovyanGFX によるタッチUIを構築しようとしています。
 ```bash
 git clone https://github.com/yourusername/esp32-lvgl-touch-test.git
 pio run -t upload
+
+
+## Contributing
+
+Pull requests are welcome.  
+If you have ideas or fixes, feel free to fork and contribute!
+
+Please make sure any changes are clearly explained and tested.
