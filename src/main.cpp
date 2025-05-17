@@ -75,7 +75,7 @@ public: LGFX(void) {
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
-      cfg.pin_cs = 33;
+      cfg.pin_cs = 33;  // 正しいCSピン
       cfg.pin_int = -1;
       cfg.bus_shared = true;
       _touch_instance.config(cfg);
@@ -107,7 +107,6 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
     Serial.printf("Touch: x=%d, y=%d\n", x, y);
   } else {
     pressed = false;
-    Serial.println("no touch");
   }
 
   data->point = last_point;
@@ -117,39 +116,28 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 void btn_event_cb(lv_event_t *e) {
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t *btn = lv_event_get_target(e);
-  Serial.printf("[Event] code = %d\n", code);
 
   if (code == LV_EVENT_PRESSED) {
     lv_label_set_text(label, "PRESSING...");
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x0077FF), LV_PART_MAIN);
     Serial.println("Button PRESSED!");
-  }
-
-  if (code == LV_EVENT_CLICKED) {
-    lv_label_set_text(label, "PRESSED!");
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x00FF00), LV_PART_MAIN);
+  } else if (code == LV_EVENT_CLICKED) {
+    lv_label_set_text(label, "CLICKED!");
     Serial.println("Button CLICKED!");
-  }
-
-  if (code == LV_EVENT_RELEASED) {
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0x444444), LV_PART_MAIN);
+  } else if (code == LV_EVENT_RELEASED) {
     Serial.println("Button RELEASED!");
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.printf("LV_HOR_RES_MAX = %d\n", LV_HOR_RES_MAX);
-  Serial.printf("LV_VER_RES_MAX = %d\n", LV_VER_RES_MAX);
-
   tft.init();
   tft.setRotation(1);
   lv_init();
 
   buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
   if (!buf2) {
-    Serial.println("Error: buf2 allocation failed!");
-    while (true);
+    Serial.println("Failed to allocate draw buffer!");
+    while (1);
   }
 
   lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
@@ -168,20 +156,8 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   lv_indev_drv_register(&indev_drv);
 
-  lv_obj_t* bg_rect = lv_obj_create(lv_scr_act());
-  lv_obj_set_style_border_width(bg_rect, 4, 0);
-  lv_obj_set_style_border_color(bg_rect, lv_color_hex(0xFF0000), 0);
-  lv_obj_set_size(bg_rect, screenWidth, screenHeight);
-  lv_obj_align(bg_rect, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_obj_clear_flag(bg_rect, LV_OBJ_FLAG_CLICKABLE);
-  lv_obj_move_background(bg_rect);
-
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
-  lv_obj_set_size(btn, 200, 80);
   lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-  lv_obj_set_style_bg_color(btn, lv_color_hex(0x444444), LV_PART_MAIN);
-  lv_obj_set_style_radius(btn, 10, LV_PART_MAIN);
-
   label = lv_label_create(btn);
   lv_label_set_text(label, "Click me!");
   lv_obj_center(label);
@@ -190,5 +166,5 @@ void setup() {
 
 void loop() {
   lv_timer_handler();
-  delay(1);
+  delay(5);
 }
