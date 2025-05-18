@@ -8,8 +8,6 @@ static lv_color_t* buf1 = nullptr;
 static lv_color_t* buf2 = nullptr;
 static lv_disp_draw_buf_t draw_buf;
 
-lv_obj_t *label;
-
 static lv_disp_drv_t disp_drv;
 static lv_indev_drv_t indev_drv;
 static lv_disp_t* disp;
@@ -101,15 +99,11 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   static bool pressed = false;
   static lv_point_t last_point;
 
-  Serial.println("my_touchpad_read called");
-  Serial.println("read_cb check: calling getTouch()");
-
   int x, y;
   if (tft.getTouch(&x, &y)) {
     last_point.x = x;
     last_point.y = y;
     pressed = true;
-    Serial.printf("Touch: x=%d, y=%d\n", x, y);
   } else {
     pressed = false;
   }
@@ -118,35 +112,21 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   data->state = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
 }
 
-void btn_event_cb(lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
+void color_btn_event_cb(lv_event_t *e) {
   lv_obj_t *btn = lv_event_get_target(e);
-
-  if (code == LV_EVENT_PRESSED) {
-    lv_label_set_text(label, "PRESSING...");
-    Serial.println("Button PRESSED!");
-  } else if (code == LV_EVENT_CLICKED) {
-    lv_label_set_text(label, "CLICKED!");
-    Serial.println("Button CLICKED!");
-  } else if (code == LV_EVENT_RELEASED) {
-    Serial.println("Button RELEASED!");
-  }
+  lv_color_t *color = (lv_color_t *)lv_event_get_user_data(e);
+  lv_obj_set_style_bg_color(lv_scr_act(), *color, 0);
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("setup complete");
   tft.init();
   tft.setRotation(1);
   lv_init();
 
   buf1 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
   buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-  if (!buf1 || !buf2) {
-    Serial.println("Failed to allocate display buffers!");
-    while (1);
-  }
-
+  if (!buf1 || !buf2) while (1);
   lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
 
   lv_disp_drv_init(&disp_drv);
@@ -154,37 +134,36 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
-  disp_drv.full_refresh = 1;
   disp = lv_disp_drv_register(&disp_drv);
 
   lv_indev_drv_init(&indev_drv);
   indev_drv.type = LV_INDEV_TYPE_POINTER;
   indev_drv.read_cb = my_touchpad_read;
   indev = lv_indev_drv_register(&indev_drv);
-  if (indev == NULL) {
-    Serial.println("Failed to register input device!");
-  } else {
-    Serial.println("Input device registered OK.");
+
+  // ボタンに対応する色を定義
+  static lv_color_t red = lv_color_hex(0xFF0000);
+  static lv_color_t green = lv_color_hex(0x00FF00);
+  static lv_color_t blue = lv_color_hex(0x0000FF);
+  static lv_color_t yellow = lv_color_hex(0xFFFF00);
+
+  const char *btn_labels[] = {"Red", "Green", "Blue", "Yellow"};
+  lv_color_t *colors[] = {&red, &green, &blue, &yellow};
+
+  for (int i = 0; i < 4; i++) {
+    lv_obj_t *btn = lv_btn_create(lv_scr_act());
+    lv_obj_set_size(btn, 100, 50);
+    lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 10 + i * 110, 10);
+    lv_obj_t *lbl = lv_label_create(btn);
+    lv_label_set_text(lbl, btn_labels[i]);
+    lv_obj_center(lbl);
+    lv_obj_add_event_cb(btn, color_btn_event_cb, LV_EVENT_CLICKED, colors[i]);
   }
 
-  lv_obj_t *btn = lv_btn_create(lv_scr_act());
-  lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-  label = lv_label_create(btn);
-  lv_label_set_text(label, "Click me!");
-  lv_obj_center(label);
-  lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
-
-  lv_obj_t* dot = lv_obj_create(lv_scr_act());
-  lv_obj_set_size(dot, 1, 1);
-  lv_obj_set_style_bg_color(dot, lv_color_hex(0x000000), 0);
-  lv_obj_align(dot, LV_ALIGN_TOP_LEFT, 0, 0);
-  lv_refr_now(NULL);
-
-  tft.fillScreen(TFT_RED);
+  lv_obj_set_style_bg_color(lv_scr_act(), red, 0);
 }
 
 unsigned long last_tick = 0;
-
 void loop() {
   unsigned long now = millis();
   if (now - last_tick > 5) {
