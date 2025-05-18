@@ -116,6 +116,10 @@ void color_btn_event_cb(lv_event_t *e) {
   lv_obj_t *btn = lv_event_get_target(e);
   lv_color_t *color = (lv_color_t *)lv_event_get_user_data(e);
   lv_obj_set_style_bg_color(lv_scr_act(), *color, 0);
+
+  lv_obj_t *label = lv_obj_get_child(btn, 0);
+  const char* txt = lv_label_get_text(label);
+  Serial.printf("Button pressed: %s\n", txt);
 }
 
 void setup() {
