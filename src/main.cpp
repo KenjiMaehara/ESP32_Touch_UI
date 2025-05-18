@@ -92,7 +92,7 @@ LGFX tft;
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
   tft.startWrite();
   tft.setAddrWindow(area->x1, area->y1, area->x2 - area->x1 + 1, area->y2 - area->y1 + 1);
-  tft.pushColors((uint16_t *)color_p, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1), true);
+  tft.pushPixels((uint16_t *)color_p, (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1), true);
   tft.endWrite();
   lv_disp_flush_ready(disp);
 }
@@ -165,7 +165,6 @@ void setup() {
     Serial.println("Failed to register input device!");
   } else {
     Serial.println("Input device registered OK.");
-    lv_indev_set_disp(indev, disp);
   }
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
