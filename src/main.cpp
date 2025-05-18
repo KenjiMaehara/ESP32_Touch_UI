@@ -28,9 +28,6 @@ public: LGFX(void) {
       cfg.spi_mode = 0;
       cfg.freq_write = 80000000;
       cfg.freq_read = 16000000;
-      cfg.spi_3wire = false;
-      cfg.use_lock = true;
-      cfg.dma_channel = SPI_DMA_CH_AUTO;
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
@@ -105,6 +102,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   static lv_point_t last_point;
 
   Serial.println("my_touchpad_read called");
+  Serial.println("read_cb check: calling getTouch()");
 
   int x, y;
   if (tft.getTouch(&x, &y)) {
@@ -167,6 +165,7 @@ void setup() {
     Serial.println("Failed to register input device!");
   } else {
     Serial.println("Input device registered OK.");
+    lv_indev_set_disp(indev, disp);
   }
 
   lv_obj_t *btn = lv_btn_create(lv_scr_act());
@@ -176,21 +175,23 @@ void setup() {
   lv_obj_center(label);
   lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL);
 
-  // 強制描画: 初期画面で動かすためのピクセル配置
   lv_obj_t* dot = lv_obj_create(lv_scr_act());
   lv_obj_set_size(dot, 1, 1);
   lv_obj_set_style_bg_color(dot, lv_color_hex(0x000000), 0);
   lv_obj_align(dot, LV_ALIGN_TOP_LEFT, 0, 0);
   lv_refr_now(NULL);
 
-  // TFT画面自体への直接描画（デバイスの動作確認）
   tft.fillScreen(TFT_RED);
 }
 
-void loop() {
-  Serial.println("loop tick");
-  lv_timer_handler();
-  delay(500);
-}
+unsigned long last_tick = 0;
 
-// テストコメント追加
+void loop() {
+  unsigned long now = millis();
+  if (now - last_tick > 5) {
+    lv_tick_inc(now - last_tick);
+    last_tick = now;
+  }
+  lv_timer_handler();
+  delay(1);
+}
