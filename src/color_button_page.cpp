@@ -1,4 +1,5 @@
 #include "color_button_page.h"
+#include <Arduino.h>
 
 void color_btn_event_cb(lv_event_t *e) {
     lv_obj_t *btn = lv_event_get_target(e);
