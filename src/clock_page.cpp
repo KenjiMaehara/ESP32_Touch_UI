@@ -1,6 +1,8 @@
 #include <lvgl.h>
 #include "clock_page.h"
-//extern const lv_font_t lv_font_montserrat_48;
+//#include "lv_font_montserrat_48.c"  // フォント実体を取り込む
+#include "Montserrat.c"
+extern const lv_font_t Montserrat;
 
 
 
@@ -15,7 +17,7 @@ void create_clock_screen() {
     lv_obj_clean(lv_scr_act());
 
     clock_label = lv_label_create(lv_scr_act());
-    lv_obj_set_style_text_font(clock_label, LV_FONT_DEFAULT, 0);
+    lv_obj_set_style_text_font(clock_label, &Montserrat, 0);
     lv_obj_align(clock_label, LV_ALIGN_CENTER, 0, -30);
     lv_label_set_text(clock_label, "00:00");
 
