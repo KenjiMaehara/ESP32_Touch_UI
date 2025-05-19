@@ -17,9 +17,10 @@ void create_clock_screen() {
     lv_obj_clean(lv_scr_act());
 
     clock_label = lv_label_create(lv_scr_act());
+    lv_label_set_text(clock_label, "00:00");  // テキストは先に
     lv_obj_set_style_text_font(clock_label, &Montserrat, 0);
+    lv_obj_set_style_transform_zoom(clock_label, 384, 0);  // 拡大は後に
     lv_obj_align(clock_label, LV_ALIGN_CENTER, 0, -30);
-    lv_label_set_text(clock_label, "00:00");
 
     lv_obj_t *next_btn = lv_btn_create(lv_scr_act());
     lv_obj_set_size(next_btn, 100, 50);
@@ -29,3 +30,4 @@ void create_clock_screen() {
     lv_obj_center(lbl);
     lv_obj_add_event_cb(next_btn, go_to_button_screen, LV_EVENT_CLICKED, NULL);
 }
+
