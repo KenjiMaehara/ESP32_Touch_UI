@@ -22,8 +22,8 @@ void create_clock_screen() {
     // ラベルラッパー
     lv_obj_t *wrapper = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(wrapper);
-    lv_obj_set_size(wrapper, 240, 100);
-    lv_obj_align(wrapper, LV_ALIGN_CENTER, 0, -30);
+    lv_obj_set_size(wrapper, 300, 120);
+    lv_obj_align(wrapper, LV_ALIGN_CENTER, 0, -50);
 
     // ラベル本体
     clock_label = lv_label_create(wrapper);
