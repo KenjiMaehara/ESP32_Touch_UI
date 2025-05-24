@@ -19,9 +19,9 @@ void create_clock_screen() {
     // ラベル用のラッパーオブジェクト
     lv_obj_t *wrapper = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(wrapper);  // 背景や枠を削除
-    lv_obj_set_size(wrapper, 240, 80); // ラベルを収めるサイズ
+    lv_obj_set_size(wrapper, 240, 100); // ラベルを収めるサイズ
     lv_obj_align(wrapper, LV_ALIGN_CENTER, 0, -30);
-    lv_obj_set_style_transform_zoom(wrapper, 384, 0);  // 1.5倍に拡大
+    //lv_obj_set_style_transform_zoom(wrapper, 384, 0);  // 1.5倍に拡大
 
     // ラベル
     clock_label = lv_label_create(wrapper);
