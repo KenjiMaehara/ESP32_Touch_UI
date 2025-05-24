@@ -152,13 +152,16 @@ void loop() {
   }
   lv_timer_handler();
 
-  if (clock_label && millis() - last_second_update >= 1000) {
-    last_second_update = millis();
-    time_t now_time = time(NULL);
-    struct tm *tm_info = localtime(&now_time);
-    char time_str[6];
-    strftime(time_str, sizeof(time_str), "%H:%M", tm_info);
-    lv_label_set_text(clock_label, time_str);
+  // clock_label が有効かどうかだけでなく、オブジェクトの親が NULL でないことも確認
+  if (clock_label && lv_obj_get_parent(clock_label)) {
+    if (millis() - last_second_update >= 1000) {
+      last_second_update = millis();
+      time_t now_time = time(NULL);
+      struct tm *tm_info = localtime(&now_time);
+      char time_str[6];
+      strftime(time_str, sizeof(time_str), "%H:%M", tm_info);
+      lv_label_set_text(clock_label, time_str);
+    }
   }
 
   delay(1);
