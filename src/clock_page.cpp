@@ -4,13 +4,18 @@
 #include "Montserrat.c"
 extern const lv_font_t Montserrat;
 
-
-
 lv_obj_t* clock_label = nullptr;
 extern void create_color_button_screen();
 
-void go_to_button_screen(lv_event_t *e) {
+// 遅延実行用コールバック
+void delayed_screen_switch(lv_timer_t *timer) {
     create_color_button_screen();
+    lv_timer_del(timer);
+}
+
+// ボタンのコールバック → タイマーで非同期遷移
+void go_to_button_screen(lv_event_t *e) {
+    lv_timer_create(delayed_screen_switch, 10, NULL);
 }
 
 void create_clock_screen() {
@@ -38,4 +43,3 @@ void create_clock_screen() {
     lv_obj_center(lbl);
     lv_obj_add_event_cb(next_btn, go_to_button_screen, LV_EVENT_CLICKED, NULL);
 }
-
