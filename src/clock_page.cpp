@@ -1,6 +1,6 @@
 #include <lvgl.h>
 #include "clock_page.h"
-#include "MontserratBold64.c"  // フォントデータを直接インクルード
+#include "MontserratBold64.h"  // フォントデータを直接インクルード
 
 extern const lv_font_t lv_font_montserrat_64;
 
@@ -28,7 +28,7 @@ void create_clock_screen() {
     // ラベル本体
     clock_label = lv_label_create(wrapper);
     lv_label_set_text(clock_label, "00:00");
-    lv_obj_set_style_text_font(clock_label, &lv_font_montserrat_64, 0);  // 修正済み
+    lv_obj_set_style_text_font(clock_label, &MontserratBold64, 0);  // 修正済み
     lv_obj_center(clock_label);
 
     // Nextボタン
