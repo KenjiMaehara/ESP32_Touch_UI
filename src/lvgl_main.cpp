@@ -6,7 +6,7 @@
 #include "LGFX_ESP32_ILI9488.hpp"
 
 // LovyanGFX v0.4.7 で自動定義されている LGFX クラスを利用
-static LGFX lcd;
+static MyLGFX lcd;
 
 // LVGLバッファ
 static lv_disp_draw_buf_t draw_buf;
