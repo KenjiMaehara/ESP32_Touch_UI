@@ -1,60 +1,28 @@
 #include "lvgl_main.h"
+#include <lv_conf.h>
 #include <lvgl.h>
 #include <LovyanGFX.hpp>
 #include "lgfx_jp_font_16.c"
 
-// パネル定義（M5Core2 用）
-class LGFX : public lgfx::LGFX_Device {
-  lgfx::Panel_M5StackCore2 _panel;
-  lgfx::Bus_SPI _bus;
-
-public:
-  LGFX(void) {
-    {
-      auto cfg = _bus.config();
-      cfg.spi_host = VSPI_HOST;
-      cfg.spi_mode = 0;
-      cfg.freq_write = 40000000;
-      cfg.freq_read  = 16000000;
-      cfg.spi_3wire = true;
-      cfg.use_lock = true;
-      cfg.dma_channel = 1;
-      cfg.pin_sclk = 18;
-      cfg.pin_mosi = 23;
-      cfg.pin_miso = 19;
-      cfg.pin_dc   = 27;
-      _bus.config(cfg);
-      _panel.setBus(&_bus);
-    }
-
-    {
-      auto cfg = _panel.config();
-      cfg.pin_cs   = 14;
-      cfg.pin_rst  = 33;
-      cfg.pin_busy = -1;
-      _panel.config(cfg);
-    }
-
-    setPanel(&_panel);
-  }
-};
-
+// LovyanGFX v0.4.7 で自動定義されている LGFX クラスを利用
 static LGFX lcd;
 
-// バッファ設定
+// LVGLバッファ
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[LV_HOR_RES_MAX * 10];
 
-// LVGLとLovyanGFXの連携
+// LVGL → LovyanGFX 描画連携
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
   lcd.startWrite();
-  lcd.pushImage(area->x1, area->y1, area->x2 - area->x1 + 1,
-                area->y2 - area->y1 + 1, (lgfx::rgb565_t *)&color_p[0]);
+  lcd.pushImage(area->x1, area->y1,
+                area->x2 - area->x1 + 1,
+                area->y2 - area->y1 + 1,
+                (lgfx::rgb565_t*)&color_p[0]);
   lcd.endWrite();
   lv_disp_flush_ready(disp);
 }
 
-// ストーリーテキスト（表示テスト用）
+// 表示用テキスト
 const char* story_pages[] = {
   "むかしむかし、あるところに\nおじいさんとおばあさんが\n住んでいました。",
   "おじいさんは山へしばかりに、\nおばあさんは川へせんたくに\n行きました。",
@@ -68,8 +36,8 @@ const int STORY_PAGE_COUNT = sizeof(story_pages) / sizeof(story_pages[0]);
 int current_page = 0;
 lv_obj_t* label;
 
-// ページ切り替え
-void next_page_cb(lv_event_t *e) {
+// ページ送り
+void next_page_cb(lv_event_t* e) {
   current_page = (current_page + 1) % STORY_PAGE_COUNT;
   lv_label_set_text(label, story_pages[current_page]);
 }
@@ -90,7 +58,7 @@ void lvgl_setup() {
   disp_drv.ver_res = lcd.height();
   lv_disp_drv_register(&disp_drv);
 
-  // ラベル作成
+  // ラベル（本文）
   label = lv_label_create(lv_scr_act());
   lv_obj_set_width(label, lcd.width() - 40);
   lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 20);
@@ -99,12 +67,12 @@ void lvgl_setup() {
   lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
 
   // 「つぎへ」ボタン
-  lv_obj_t *btn = lv_btn_create(lv_scr_act());
+  lv_obj_t* btn = lv_btn_create(lv_scr_act());
   lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0, -20);
   lv_obj_set_size(btn, 120, 50);
   lv_obj_add_event_cb(btn, next_page_cb, LV_EVENT_CLICKED, NULL);
 
-  lv_obj_t *btn_label = lv_label_create(btn);
+  lv_obj_t* btn_label = lv_label_create(btn);
   lv_label_set_text(btn_label, "つぎへ ▶");
   lv_obj_center(btn_label);
 }
