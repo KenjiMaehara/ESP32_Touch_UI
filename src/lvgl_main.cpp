@@ -1,17 +1,45 @@
 #include "lvgl_main.h"
-#include <LovyanGFX.hpp>  // ← これがないと LGFX_AUTODETECT の型が定義されません
-#include <LGFX_AUTODETECT.hpp>
 #include <lvgl.h>
+#include <LovyanGFX.hpp>
 #include "lgfx_jp_font_16.c"
 
-#ifdef LGFX_AUTODETECT
-#warning LGFX_AUTODETECT is defined
-#else
-#error LGFX_AUTODETECT is NOT defined
-#endif
+// パネル定義（M5Core2 用）
+class LGFX : public lgfx::LGFX_Device {
+  lgfx::Panel_M5StackCore2 _panel;
+  lgfx::Bus_SPI _bus;
 
-// LovyanGFXの自動パネル認識（M5Core2などに対応）
-static LGFX_AUTODETECT lcd;
+public:
+  LGFX(void) {
+    {
+      auto cfg = _bus.config();
+      cfg.spi_host = VSPI_HOST;
+      cfg.spi_mode = 0;
+      cfg.freq_write = 40000000;
+      cfg.freq_read  = 16000000;
+      cfg.spi_3wire = true;
+      cfg.use_lock = true;
+      cfg.dma_channel = 1;
+      cfg.pin_sclk = 18;
+      cfg.pin_mosi = 23;
+      cfg.pin_miso = 19;
+      cfg.pin_dc   = 27;
+      _bus.config(cfg);
+      _panel.setBus(&_bus);
+    }
+
+    {
+      auto cfg = _panel.config();
+      cfg.pin_cs   = 14;
+      cfg.pin_rst  = 33;
+      cfg.pin_busy = -1;
+      _panel.config(cfg);
+    }
+
+    setPanel(&_panel);
+  }
+};
+
+static LGFX lcd;
 
 // バッファ設定
 static lv_disp_draw_buf_t draw_buf;
@@ -38,7 +66,6 @@ const char* story_pages[] = {
 
 const int STORY_PAGE_COUNT = sizeof(story_pages) / sizeof(story_pages[0]);
 int current_page = 0;
-
 lv_obj_t* label;
 
 // ページ切り替え
