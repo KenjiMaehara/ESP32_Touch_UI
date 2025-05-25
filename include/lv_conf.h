@@ -10,6 +10,7 @@
 #define LV_USE_BTN              1
 #define LV_USE_LABEL            1
 #define LV_USE_USER_DATA        1  // ★この行を追加
+#define LV_CONF_INCLUDE_SIMPLE  1
 #define LV_FONT_FMT_TXT_LARGE   1
 
 

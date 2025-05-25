@@ -1,15 +1,17 @@
 #include "lvgl_main.h"
+#include <LovyanGFX.hpp>  // ← これがないと LGFX_AUTODETECT の型が定義されません
 #include <LGFX_AUTODETECT.hpp>
 #include <lvgl.h>
 #include "lgfx_jp_font_16.c"
 
-// LovyanGFX自動パネル認識
-class LGFX_M5Core2 : public LGFX_AUTODETECT {
-public:
-  LGFX_M5Core2() {}
-};
+#ifdef LGFX_AUTODETECT
+#warning LGFX_AUTODETECT is defined
+#else
+#error LGFX_AUTODETECT is NOT defined
+#endif
 
-static LGFX_M5Core2 lcd;
+// LovyanGFXの自動パネル認識（M5Core2などに対応）
+static LGFX_AUTODETECT lcd;
 
 // バッファ設定
 static lv_disp_draw_buf_t draw_buf;
