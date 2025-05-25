@@ -3,6 +3,7 @@
 #include <lvgl.h>
 #include <LovyanGFX.hpp>
 #include "lgfx_jp_font_16.c"
+#include "LGFX_ESP32_ILI9488.hpp"
 
 // LovyanGFX v0.4.7 で自動定義されている LGFX クラスを利用
 static LGFX lcd;
