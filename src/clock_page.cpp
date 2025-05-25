@@ -1,6 +1,7 @@
 #include <lvgl.h>
+#include <time.h>
 #include "clock_page.h"
-#include "MontserratBold64.h"  // フォントデータを直接インクルード
+#include "MontserratBold64.h"
 
 extern const lv_font_t MontserratBold64;
 
@@ -22,7 +23,8 @@ void create_clock_screen() {
     // ラベルラッパー
     lv_obj_t *wrapper = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(wrapper);
-    lv_obj_set_size(wrapper, 300, 120);  // 高さを広げてフォントがはみ出ないようにする
+    //lv_obj_set_size(wrapper, 300, 120);  // 高さを広げてフォントがはみ出ないようにする
+    lv_obj_set_size(wrapper, 600, 240);  // 高さを広げてフォントがはみ出ないようにする
     lv_obj_align(wrapper, LV_ALIGN_CENTER, 0, -50);  // 上に配置
 
     // ラベル本体
@@ -43,4 +45,6 @@ void create_clock_screen() {
     lv_label_set_text(lbl, "Next");
     lv_obj_center(lbl);
     lv_obj_add_event_cb(next_btn, go_to_button_screen, LV_EVENT_CLICKED, NULL);
+
+    // ※時計更新タイマーは main.cpp 側で行うため削除
 }
