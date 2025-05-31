@@ -15,7 +15,8 @@ void delayed_screen_switch(lv_timer_t *timer) {
 
 // ボタンのコールバック → タイマーで非同期遷移
 void go_to_button_screen(lv_event_t *e) {
-    lv_timer_create(delayed_screen_switch, 10, NULL);
+    //lv_timer_create(delayed_screen_switch, 10, NULL);
+    create_color_button_screen();  // ← タイマーなしで直接呼び出し
 }
 
 void create_clock_screen() {
