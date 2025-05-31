@@ -1,6 +1,7 @@
+#include <Arduino.h>  // ← この行を追加
 #include <lvgl.h>
 #include "clock_page.h"
-#include "NotoSansBold64.h"  // 明示的に組み込み
+#include "NotoSansBold64.h"  // extern 宣言を含むヘッダー
 
 lv_obj_t* clock_label = nullptr;
 
@@ -18,9 +19,16 @@ void create_clock_screen() {
     lv_obj_set_style_text_font(clock_label, &NotoSansBold64, 0);
     lv_obj_set_style_text_color(clock_label, lv_color_hex(0xFFFFFF), 0);
 
-    lv_label_set_text(clock_label, "00:00");
+    // フォントが有効かどうかチェックして表示内容を切り替える
+    if (NotoSansBold64.get_glyph_dsc == nullptr) {
+        lv_label_set_text(clock_label, "Font Error");
+        Serial.println("[Font Check] NotoSansBold64 is NULL: get_glyph_dsc == nullptr");
+    } else {
+        lv_label_set_text(clock_label, "00:00");
+        Serial.println("[Font Check] NotoSansBold64 is OK: get_glyph_dsc is valid");
+    }
 
-    lv_obj_set_size(clock_label, 480, 320);  // 画面全体を使う
+    lv_obj_set_size(clock_label, 480, 320);
     lv_obj_center(clock_label);
 
     lv_obj_set_style_border_width(clock_label, 2, 0);

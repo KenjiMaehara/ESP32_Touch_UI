@@ -115,6 +115,8 @@ void setup() {
   Serial.begin(115200);
   tft.init();
   tft.setRotation(1);
+  tft.setBrightness(255);  // 💡 画面が暗い場合に対応
+
   lv_init();
 
   configTime(9 * 3600, 0, "ntp.nict.jp");
@@ -123,7 +125,10 @@ void setup() {
 
   buf1 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
   buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
-  if (!buf1 || !buf2) while (1);
+  if (!buf1 || !buf2) {
+    Serial.println("💥 バッファの確保に失敗");
+    while (1);
+  }
   lv_disp_draw_buf_init(&draw_buf, buf1, buf2, screenWidth * 40);
 
   lv_disp_drv_init(&disp_drv);
@@ -131,6 +136,7 @@ void setup() {
   disp_drv.draw_buf = &draw_buf;
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
+  disp_drv.user_data = nullptr;
   disp = lv_disp_drv_register(&disp_drv);
 
   lv_indev_drv_init(&indev_drv);
@@ -138,7 +144,7 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   indev = lv_indev_drv_register(&indev_drv);
 
-  create_clock_screen();
+  create_clock_screen();  // ⏰ 時計画面表示
 }
 
 unsigned long last_tick = 0;
@@ -150,9 +156,10 @@ void loop() {
     lv_tick_inc(now - last_tick);
     last_tick = now;
   }
-  lv_timer_handler();
 
-  // clock_label が有効かどうかだけでなく、オブジェクトの親が NULL でないことも確認
+  lv_timer_handler();  // 🔁 画面描画更新
+
+  // 毎秒ラベル更新
   if (clock_label && lv_obj_get_parent(clock_label)) {
     if (millis() - last_second_update >= 1000) {
       last_second_update = millis();
