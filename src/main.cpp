@@ -159,17 +159,16 @@ void loop() {
 
   lv_timer_handler();  // 🔁 画面描画更新
 
-  // 毎秒ラベル更新
-  if (clock_label && lv_obj_get_parent(clock_label)) {
+  if (clock_label && lv_obj_get_screen(clock_label) == lv_scr_act()) {
     if (millis() - last_second_update >= 1000) {
-      last_second_update = millis();
-      time_t now_time = time(NULL);
-      struct tm *tm_info = localtime(&now_time);
-      char time_str[6];
-      strftime(time_str, sizeof(time_str), "%H:%M", tm_info);
-      lv_label_set_text(clock_label, time_str);
+        last_second_update = millis();
+        time_t now_time = time(NULL);
+        struct tm *tm_info = localtime(&now_time);
+        char time_str[6];
+        strftime(time_str, sizeof(time_str), "%H:%M", tm_info);
+        lv_label_set_text(clock_label, time_str);
     }
-  }
+}
 
   delay(1);
 }
