@@ -16,21 +16,17 @@ void create_clock_screen() {
 
     clock_label = lv_label_create(wrapper);
     lv_label_set_long_mode(clock_label, LV_LABEL_LONG_CLIP);
-    lv_obj_set_style_text_font(clock_label, &NotoSansBold64, 0);
+
+    // フォントを仮に小さくする（NotoSansBold64 が大きすぎるかも）
+    extern const lv_font_t lv_font_montserrat_32;  // 小さいフォント
+    lv_obj_set_style_text_font(clock_label, &lv_font_montserrat_32, 0);  // ← ここを差し替え
     lv_obj_set_style_text_color(clock_label, lv_color_hex(0xFFFFFF), 0);
 
-    // フォントが有効かどうかチェックして表示内容を切り替える
-    if (NotoSansBold64.get_glyph_dsc == nullptr) {
-        lv_label_set_text(clock_label, "Font Error");
-        Serial.println("[Font Check] NotoSansBold64 is NULL: get_glyph_dsc == nullptr");
-    } else {
-        lv_label_set_text(clock_label, "00:00");
-        Serial.println("[Font Check] NotoSansBold64 is OK: get_glyph_dsc is valid");
-    }
+    lv_label_set_text(clock_label, "00:00");
 
-    lv_obj_set_size(clock_label, 480, 320);
     lv_obj_center(clock_label);
 
     lv_obj_set_style_border_width(clock_label, 2, 0);
     lv_obj_set_style_border_color(clock_label, lv_color_hex(0xFF0000), 0);
 }
+

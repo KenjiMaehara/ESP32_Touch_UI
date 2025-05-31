@@ -15,6 +15,15 @@
 //#define LV_FONT_CUSTOM_DECLARE  1  // ★これも追加
 //#define LV_FONT_CUSTOM_DECLARE extern const lv_font_t MontserratBold64;
 #define LV_FONT_CUSTOM_DECLARE extern const lv_font_t NotoSansBold64;
+// 使用したいフォントを有効化（★追加）
+#define LV_FONT_MONTSERRAT_32   1
+#define LV_FONT_MONTSERRAT_28   1
+
+// カスタムフォントの extern 宣言（★複数定義も可能）
+#define LV_FONT_CUSTOM_DECLARE         \
+    extern const lv_font_t NotoSansBold64; \
+    extern const lv_font_t lv_font_montserrat_32; \
+    extern const lv_font_t lv_font_montserrat_28;
 
 
 #define LV_USE_PERF_MONITOR     1
