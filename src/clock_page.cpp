@@ -16,19 +16,19 @@ void create_clock_screen() {
 
     clock_label = lv_label_create(wrapper);
     lv_label_set_long_mode(clock_label, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(clock_label, "123");  // ← 少ない文字で表示確認
 
-    // NotoSansBold64 フォントを使用
+    lv_obj_set_width(clock_label, 480);
+    lv_obj_set_height(clock_label, 100);
+
     lv_obj_set_style_text_font(clock_label, &NotoSansBold64, 0);
     lv_obj_set_style_text_color(clock_label, lv_color_hex(0x000000), 0);  // 黒文字
 
-    // テスト文字を表示（このフォントに含まれている文字だけ）
-    lv_label_set_text(clock_label, "01");
-
     lv_obj_center(clock_label);
 
-    // ボーダー（デバッグ用）※必要なら削除可
     lv_obj_set_style_border_width(clock_label, 2, 0);
     lv_obj_set_style_border_color(clock_label, lv_color_hex(0xFF0000), 0);
 }
+
 
 
