@@ -13,7 +13,8 @@
 
 #define LV_USE_FONT_CUSTOM      1  // ★これを追加
 //#define LV_FONT_CUSTOM_DECLARE  1  // ★これも追加
-#define LV_FONT_CUSTOM_DECLARE extern const lv_font_t MontserratBold64;
+//#define LV_FONT_CUSTOM_DECLARE extern const lv_font_t MontserratBold64;
+#define LV_FONT_CUSTOM_DECLARE extern const lv_font_t NotoSansBold64;
 
 
 #define LV_USE_PERF_MONITOR     1

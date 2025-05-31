@@ -1,3 +1,12 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef NOTOSANSBOLD64
+#define NOTOSANSBOLD64 1
+#endif
+
+
 /*******************************************************************************
  * Size: 64 px
  * Bpp: 4
@@ -601,3 +610,12 @@ lv_font_t NotoSansBold64 = {
 
 #endif /*#if NOTOSANSBOLD64*/
 
+
+
+
+
+extern const lv_font_t NotoSansBold64;
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
