@@ -20,7 +20,7 @@ void create_clock_screen() {
     // フォントを仮に小さくする（NotoSansBold64 が大きすぎるかも）
     extern const lv_font_t lv_font_montserrat_32;  // 小さいフォント
     lv_obj_set_style_text_font(clock_label, &lv_font_montserrat_32, 0);  // ← ここを差し替え
-    lv_obj_set_style_text_color(clock_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(clock_label, lv_color_hex(0x000000), 0);
 
     lv_label_set_text(clock_label, "00:00");
 
