@@ -16,6 +16,7 @@
 #define LV_FONT_MONTSERRAT_32   1
 #define LV_FONT_MONTSERRAT_28   1
 
+#define LV_FONT_FMT_TXT_LARGE 1
 
 // カスタムフォントの extern 宣言（★複数定義も可能）
 #define LV_FONT_CUSTOM_DECLARE         \
