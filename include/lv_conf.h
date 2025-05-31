@@ -9,6 +9,7 @@
 #define LV_USE_INDEV            1
 #define LV_USE_BTN              1
 #define LV_USE_LABEL            1
+#define LV_USE_USER_DATA        1  // ★この行を追加
 
 #define LV_USE_PERF_MONITOR     1
 #define LV_USE_LOG              1

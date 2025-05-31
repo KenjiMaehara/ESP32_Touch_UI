@@ -1,13 +1,14 @@
 #include <lvgl.h>
 #include <LovyanGFX.hpp>
-#include "esp_heap_caps.h"
+#include <time.h>
+#include "clock_page.h"
+#include "color_button_page.h"
 
 static const uint32_t screenWidth  = 480;
 static const uint32_t screenHeight = 320;
 static lv_color_t* buf1 = nullptr;
 static lv_color_t* buf2 = nullptr;
 static lv_disp_draw_buf_t draw_buf;
-
 static lv_disp_drv_t disp_drv;
 static lv_indev_drv_t indev_drv;
 static lv_disp_t* disp;
@@ -67,8 +68,6 @@ public: LGFX(void) {
       auto cfg = _touch_instance.config();
       cfg.x_min = 0;
       cfg.x_max = 4095;
-      //cfg.y_min = 0;
-      //cfg.y_max = 4095;
       cfg.y_min = 4095;
       cfg.y_max = 0;
       cfg.offset_rotation = 0;
@@ -100,7 +99,6 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   static bool pressed = false;
   static lv_point_t last_point;
-
   int x, y;
   if (tft.getTouch(&x, &y)) {
     last_point.x = x;
@@ -109,19 +107,8 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   } else {
     pressed = false;
   }
-
   data->point = last_point;
   data->state = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
-}
-
-void color_btn_event_cb(lv_event_t *e) {
-  lv_obj_t *btn = lv_event_get_target(e);
-  lv_color_t *color = (lv_color_t *)lv_event_get_user_data(e);
-  lv_obj_set_style_bg_color(lv_scr_act(), *color, 0);
-
-  lv_obj_t *label = lv_obj_get_child(btn, 0);
-  const char* txt = lv_label_get_text(label);
-  Serial.printf("Button pressed: %s\n", txt);
 }
 
 void setup() {
@@ -129,6 +116,10 @@ void setup() {
   tft.init();
   tft.setRotation(1);
   lv_init();
+
+  configTime(9 * 3600, 0, "ntp.nict.jp");
+  setenv("TZ", "JST-9", 1);
+  tzset();
 
   buf1 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
   buf2 = (lv_color_t*)heap_caps_malloc(screenWidth * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
@@ -147,29 +138,12 @@ void setup() {
   indev_drv.read_cb = my_touchpad_read;
   indev = lv_indev_drv_register(&indev_drv);
 
-  // ボタンに対応する色を定義
-  static lv_color_t red = lv_color_hex(0xFF0000);
-  static lv_color_t green = lv_color_hex(0x00FF00);
-  static lv_color_t blue = lv_color_hex(0x0000FF);
-  static lv_color_t yellow = lv_color_hex(0xFFFF00);
-
-  const char *btn_labels[] = {"Red", "Green", "Blue", "Yellow"};
-  lv_color_t *colors[] = {&red, &green, &blue, &yellow};
-
-  for (int i = 0; i < 4; i++) {
-    lv_obj_t *btn = lv_btn_create(lv_scr_act());
-    lv_obj_set_size(btn, 100, 50);
-    lv_obj_align(btn, LV_ALIGN_TOP_LEFT, 10 + i * 110, 10);
-    lv_obj_t *lbl = lv_label_create(btn);
-    lv_label_set_text(lbl, btn_labels[i]);
-    lv_obj_center(lbl);
-    lv_obj_add_event_cb(btn, color_btn_event_cb, LV_EVENT_CLICKED, colors[i]);
-  }
-
-  lv_obj_set_style_bg_color(lv_scr_act(), red, 0);
+  create_clock_screen();
 }
 
 unsigned long last_tick = 0;
+unsigned long last_second_update = 0;
+
 void loop() {
   unsigned long now = millis();
   if (now - last_tick > 5) {
@@ -177,5 +151,18 @@ void loop() {
     last_tick = now;
   }
   lv_timer_handler();
+
+  // clock_label が有効かどうかだけでなく、オブジェクトの親が NULL でないことも確認
+  if (clock_label && lv_obj_get_parent(clock_label)) {
+    if (millis() - last_second_update >= 1000) {
+      last_second_update = millis();
+      time_t now_time = time(NULL);
+      struct tm *tm_info = localtime(&now_time);
+      char time_str[6];
+      strftime(time_str, sizeof(time_str), "%H:%M", tm_info);
+      lv_label_set_text(clock_label, time_str);
+    }
+  }
+
   delay(1);
 }
