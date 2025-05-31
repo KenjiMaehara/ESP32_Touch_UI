@@ -11,6 +11,11 @@
 #define LV_USE_LABEL            1
 #define LV_USE_USER_DATA        1  // ★この行を追加
 
+#define LV_USE_FONT_CUSTOM      1  // ★これを追加
+//#define LV_FONT_CUSTOM_DECLARE  1  // ★これも追加
+#define LV_FONT_CUSTOM_DECLARE extern const lv_font_t MontserratBold64;
+
+
 #define LV_USE_PERF_MONITOR     1
 #define LV_USE_LOG              1
 #define LV_LOG_LEVEL            LV_LOG_LEVEL_WARN
