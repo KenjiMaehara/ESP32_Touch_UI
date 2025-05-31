@@ -22,6 +22,7 @@
     extern const lv_font_t lv_font_montserrat_32; \
     extern const lv_font_t lv_font_montserrat_28;
 
+#define LV_FONT_COMPRESSED 1  // ← これが必要
 
 #define LV_USE_PERF_MONITOR     1
 #define LV_USE_LOG              1
