@@ -22,7 +22,7 @@ void create_clock_screen() {
     lv_obj_set_style_text_color(clock_label, lv_color_hex(0x000000), 0);  // 黒文字
 
     // テスト文字を表示（このフォントに含まれている文字だけ）
-    lv_label_set_text(clock_label, "0123456789:");
+    lv_label_set_text(clock_label, "01");
 
     lv_obj_center(clock_label);
 
