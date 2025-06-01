@@ -1,5 +1,5 @@
 #include <lvgl.h>
-#include "NotoSansJPRegular24.h"  // あなたの生成フォントを include
+#include "NotoSansJPRegular32.h"  // あなたの生成フォントを include
 
 void create_japanese_font_screen() {
     // スクリーン作成
@@ -12,7 +12,7 @@ void create_japanese_font_screen() {
     lv_label_set_text(label, "こんにちは 世界\n時刻 設定");
 
     // フォント設定
-    lv_obj_set_style_text_font(label, &NotoSansJPRegular24, LV_PART_MAIN);
+    lv_obj_set_style_text_font(label, &NotoSansJPRegular32, LV_PART_MAIN);
 
     // テキスト中央揃え
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
