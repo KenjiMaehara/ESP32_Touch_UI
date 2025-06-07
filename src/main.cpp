@@ -5,6 +5,7 @@ class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
   lgfx::Light_PWM _light;
+  lgfx::Touch_XPT2046 _touch;
 
 public:
   LGFX(void) {
@@ -54,6 +55,25 @@ public:
       _panel.setLight(&_light);
     }
 
+    {
+      auto cfg = _touch.config();
+      cfg.spi_host = VSPI_HOST;
+      cfg.freq = 1000000;
+      cfg.pin_sclk = 14;
+      cfg.pin_mosi = 13;
+      cfg.pin_miso = 12;
+      cfg.pin_cs   = 33;
+      cfg.x_min = 200;
+      cfg.x_max = 3900;
+      cfg.y_min = 200;
+      cfg.y_max = 3900;
+      cfg.bus_shared = true;
+      cfg.offset_rotation = 0;
+      cfg.pin_int = -1;
+      _touch.config(cfg);
+      this->setTouch(&_touch);
+    }
+
     setPanel(&_panel);
   }
 };
@@ -68,10 +88,10 @@ void showScreen0() {
   tft.setTextSize(3);
   tft.setCursor(40, 120);
   tft.print("Hello, World!");
-  tft.fillRect(60, 300, 200, 50, TFT_GREEN);
+  tft.fillRect(60, 400, 200, 50, TFT_GREEN);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(110, 315);
+  tft.setCursor(110, 415);
   tft.print("Next");
 }
 
@@ -81,10 +101,10 @@ void showScreen1() {
   tft.setTextSize(3);
   tft.setCursor(40, 120);
   tft.print("Second Page");
-  tft.fillRect(60, 300, 200, 50, TFT_ORANGE);
+  tft.fillRect(60, 400, 200, 50, TFT_ORANGE);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(100, 315);
+  tft.setCursor(100, 415);
   tft.print("Back");
 }
 
@@ -102,8 +122,8 @@ void setup() {
 }
 
 void loop() {
-  if (tft.getTouchRaw(&tp)) {
-    if (tp.x > 60 && tp.x < 260 && tp.y > 300 && tp.y < 350) {
+  if (tft.getTouch(&tp)) {
+    if (tp.x > 60 && tp.x < 260 && tp.y > 400 && tp.y < 450) {
       screen_state = !screen_state;
       if (screen_state == 0) showScreen0();
       else showScreen1();
