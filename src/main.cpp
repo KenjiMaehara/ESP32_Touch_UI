@@ -80,8 +80,9 @@ public:
 
 LGFX tft;
 int screen_state = 0;
-const int total_screens = 3;
+const int total_screens = 4;
 lgfx::touch_point_t tp;
+String input_value = "";
 
 void showScreen0() {
   tft.fillScreen(TFT_BLACK);
@@ -122,34 +123,76 @@ void showScreen2() {
   tft.print("Next");
 }
 
+void showScreen3() {
+  tft.fillScreen(TFT_DARKGREY);
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(40, 20);
+  tft.print("Input: " + input_value);
+
+  const char* keys[4][3] = {
+    {"1", "2", "3"},
+    {"4", "5", "6"},
+    {"7", "8", "9"},
+    {"*", "0", "#"}
+  };
+
+  for (int row = 0; row < 4; row++) {
+    for (int col = 0; col < 3; col++) {
+      int x = 40 + col * 80;
+      int y = 80 + row * 80;
+      tft.fillRect(x, y, 60, 60, TFT_WHITE);
+      tft.setTextColor(TFT_BLACK);
+      tft.setTextSize(3);
+      tft.setCursor(x + 20, y + 15);
+      tft.print(keys[row][col]);
+    }
+  }
+}
+
 void showCurrentScreen() {
   switch (screen_state) {
     case 0: showScreen0(); break;
     case 1: showScreen1(); break;
     case 2: showScreen2(); break;
+    case 3: showScreen3(); break;
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Start setup");
-
   tft.init();
-  Serial.println("tft.init OK");
-
   tft.setBrightness(255);
   tft.setRotation(1);
-
   showCurrentScreen();
 }
 
 void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
-    if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
+
+    if (screen_state < 3 && tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
       screen_state = (screen_state + 1) % total_screens;
       showCurrentScreen();
       delay(300);
+    }
+    else if (screen_state == 3) {
+      // テンキーのタップ判定
+      for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 3; col++) {
+          int x = 40 + col * 80;
+          int y = 80 + row * 80;
+          if (tp.x > x && tp.x < x + 60 && tp.y > y && tp.y < y + 60) {
+            const char* keys[4][3] = {
+              {"1", "2", "3"}, {"4", "5", "6"}, {"7", "8", "9"}, {"*", "0", "#"}
+            };
+            input_value += keys[row][col];
+            showScreen3();
+            delay(300);
+            return;
+          }
+        }
+      }
     }
   }
 }
