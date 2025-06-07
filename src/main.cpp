@@ -2,32 +2,32 @@
 
 class LGFX : public lgfx::LGFX_Device {
 public:
-  lgfx::Panel_ILI9488 _panel_instance;
-  lgfx::Bus_SPI _bus_instance;
-  lgfx::Light_PWM _light_instance;
+  lgfx::Panel_ILI9488 _panel;
+  lgfx::Bus_SPI _bus;
+  lgfx::Light_PWM _light;
 
   LGFX(void) {
     {
-      auto cfg = _bus_instance.config();
+      auto cfg = _bus.config();
       cfg.spi_host = SPI2_HOST;
       cfg.spi_mode = 0;
       cfg.freq_write = 40000000;
-      cfg.freq_read  = 16000000;
-      cfg.spi_3wire  = false;
-      cfg.use_lock   = true;
+      cfg.freq_read = 16000000;
+      cfg.spi_3wire = false;
+      cfg.use_lock = true;
       cfg.dma_channel = 1;
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
       cfg.pin_dc   = 2;
-      _bus_instance.config(cfg);
-      _panel_instance.setBus(&_bus_instance);
+      _bus.config(cfg);
+      _panel.setBus(&_bus);
     }
 
     {
-      auto cfg = _panel_instance.config();
-      cfg.pin_cs   = 15;
-      cfg.pin_rst  = -1;
+      auto cfg = _panel.config();
+      cfg.pin_cs = 15;
+      cfg.pin_rst = -1;
       cfg.pin_busy = -1;
       cfg.memory_width  = 320;
       cfg.memory_height = 480;
@@ -40,77 +40,38 @@ public:
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
       cfg.bus_shared = true;
-      _panel_instance.config(cfg);
+      _panel.config(cfg);
     }
 
     {
-      auto cfg = _light_instance.config();
+      auto cfg = _light.config();
       cfg.pin_bl = 27;
       cfg.invert = false;
       cfg.freq = 44100;
       cfg.pwm_channel = 7;
-      _light_instance.config(cfg);
-      _panel_instance.setLight(&_light_instance);
+      _light.config(cfg);
+      _panel.setLight(&_light);
     }
 
-    setPanel(&_panel_instance);
+    setPanel(&_panel);
   }
 };
 
 LGFX tft;
 
-enum ScreenState {
-  SCREEN_HOME,
-  SCREEN_MENU
-};
-
-ScreenState currentScreen = SCREEN_HOME;
-
-void drawHomeScreen() {
-  tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(10, 10);
-  tft.print("HOME Screen");
-
-  tft.drawRect(50, 100, 120, 40, TFT_WHITE);
-  tft.setCursor(60, 115);
-  tft.print("Go to MENU");
-}
-
-void drawMenuScreen() {
-  tft.fillScreen(TFT_BLUE);
-  tft.setTextColor(TFT_YELLOW);
-  tft.setTextSize(2);
-  tft.setCursor(10, 10);
-  tft.print("MENU Screen");
-
-  tft.drawRect(50, 100, 120, 40, TFT_YELLOW);
-  tft.setCursor(60, 115);
-  tft.print("Back to HOME");
-}
-
-void handleTouchOrInput() {
-  if (digitalRead(0) == LOW) {
-    delay(200);
-    if (currentScreen == SCREEN_HOME) {
-      currentScreen = SCREEN_MENU;
-      drawMenuScreen();
-    } else {
-      currentScreen = SCREEN_HOME;
-      drawHomeScreen();
-    }
-  }
-}
-
 void setup() {
-  pinMode(0, INPUT_PULLUP);
+  Serial.begin(115200);
   tft.init();
   tft.setRotation(1);
   tft.setBrightness(255);
-  drawHomeScreen();
+
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_GREEN);
+  tft.setTextSize(2);
+  tft.setCursor(80, 120);  // 中央付近
+  tft.print("Hello, World!");
 }
 
 void loop() {
-  handleTouchOrInput();
+  // 何もしない
 }
