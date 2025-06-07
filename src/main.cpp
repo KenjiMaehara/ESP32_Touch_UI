@@ -26,8 +26,14 @@ public:
     {
       auto cfg = _panel_instance.config();
       cfg.pin_cs   = 15;
-      cfg.pin_rst  = -1;   // ←RST未接続なら-1
+      cfg.pin_rst  = -1;
       cfg.pin_busy = -1;
+
+      cfg.memory_width  = 320;
+      cfg.memory_height = 480;
+      cfg.panel_width   = 320;
+      cfg.panel_height  = 480;
+
       cfg.invert = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
@@ -41,8 +47,6 @@ public:
 
 LGFX tft;
 
-
-
 enum ScreenState {
   SCREEN_HOME,
   SCREEN_MENU
@@ -50,7 +54,6 @@ enum ScreenState {
 
 ScreenState currentScreen = SCREEN_HOME;
 
-// 画面描画関数
 void drawHomeScreen() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE);
@@ -75,11 +78,9 @@ void drawMenuScreen() {
   tft.print("Back to HOME");
 }
 
-// タッチ処理（仮：タッチなしの場合はボタン押下などで代用）
 void handleTouchOrInput() {
-  // ここでは仮にボタン（GPIO 0）で画面遷移する例
   if (digitalRead(0) == LOW) {
-    delay(200);  // デバウンス
+    delay(200);
     if (currentScreen == SCREEN_HOME) {
       currentScreen = SCREEN_MENU;
       drawMenuScreen();
@@ -92,7 +93,9 @@ void handleTouchOrInput() {
 
 void setup() {
   pinMode(0, INPUT_PULLUP);
-  tft.begin();
+  tft.init();
+  tft.setRotation(1);
+  tft.setBrightness(255);
   drawHomeScreen();
 }
 
