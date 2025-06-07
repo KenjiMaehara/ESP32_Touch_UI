@@ -59,6 +59,25 @@ public:
 };
 
 LGFX tft;
+int screen_state = 0;
+unsigned long last_change = 0;
+const unsigned long interval = 3000;  // 3秒ごとに切り替え
+
+void showScreen0() {
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_RED);
+  tft.setTextSize(3);
+  tft.setCursor(40, 200);
+  tft.print("Hello, World!");
+}
+
+void showScreen1() {
+  tft.fillScreen(TFT_BLUE);
+  tft.setTextColor(TFT_YELLOW);
+  tft.setTextSize(3);
+  tft.setCursor(20, 200);
+  tft.print("Second Page");
+}
 
 void setup() {
   Serial.begin(115200);
@@ -73,16 +92,16 @@ void setup() {
   tft.setRotation(1);
   Serial.println("setRotation OK");
 
-  tft.fillScreen(TFT_BLACK);
-  Serial.println("fillScreen OK");
-
-  tft.setTextColor(TFT_RED);
-  tft.setTextSize(3);
-  tft.setCursor(40, 200);
-  tft.print("Hello, World!");
-  Serial.println("print OK");
+  showScreen0();
+  last_change = millis();
 }
 
 void loop() {
-  // 何もしない
+  unsigned long now = millis();
+  if (now - last_change > interval) {
+    screen_state = !screen_state;
+    if (screen_state == 0) showScreen0();
+    else showScreen1();
+    last_change = now;
+  }
 }
