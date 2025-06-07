@@ -20,7 +20,7 @@ public:
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = -1;
-      cfg.pin_dc   = 21;
+      cfg.pin_dc   = 2;
       _bus.config(cfg);
       _panel.setBus(&_bus);
     }
