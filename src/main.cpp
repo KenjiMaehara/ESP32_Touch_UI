@@ -52,10 +52,10 @@ public:
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
       cfg.pin_cs   = 33;
-      cfg.x_min = 136;     // 補正済み（y軸右端）
-      cfg.x_max = 3943;    // 補正済み（y軸左端）
-      cfg.y_min = 336;     // 補正済み（x軸上端）
-      cfg.y_max = 3378;    // 補正済み（x軸下端）
+      cfg.x_min = 161;     // 補正済み（y軸右端）
+      cfg.x_max = 3795;    // 補正済み（y軸左端）
+      cfg.y_min = 270;     // 補正済み（x軸上端）
+      cfg.y_max = 3756;    // 補正済み（x軸下端）
       cfg.bus_shared = true;
       cfg.offset_rotation = 3;
       cfg.pin_int = -1;
