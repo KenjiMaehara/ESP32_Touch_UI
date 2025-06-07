@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <LovyanGFX.hpp>
 
 class LGFX : public lgfx::LGFX_Device {
@@ -6,7 +7,7 @@ class LGFX : public lgfx::LGFX_Device {
 
 public:
   LGFX(void) {
-    { // SPIバス設定
+    {
       auto cfg = _bus.config();
       cfg.spi_host = VSPI_HOST;
       cfg.spi_mode = 0;
@@ -18,12 +19,12 @@ public:
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = -1;
-      cfg.pin_dc   = 21;  // GPIO2 → GPIO21
+      cfg.pin_dc   = 21;  // GPIO2から安全なGPIO21に変更
       _bus.config(cfg);
       _panel.setBus(&_bus);
     }
 
-    { // パネル設定
+    {
       auto cfg = _panel.config();
       cfg.pin_cs   = 15;
       cfg.pin_rst  = -1;
@@ -42,7 +43,7 @@ public:
       _panel.config(cfg);
     }
 
-    _panel.setLight(nullptr); // 暫定バイパス
+    _panel.setLight(nullptr);
     setPanel(&_panel);
   }
 };
@@ -53,10 +54,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Start setup");
 
-  // バックライト制御（GPIO27）
-  pinMode(27, OUTPUT);
-  delay(10);  // 安定化待機
-  digitalWrite(27, HIGH);
+  pinMode(27, OUTPUT);     // バックライト用ピン
+  delay(10);
+  digitalWrite(27, HIGH);  // バックライトON
   Serial.println("Backlight ON");
 
   tft.init();
