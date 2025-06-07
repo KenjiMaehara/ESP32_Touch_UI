@@ -19,7 +19,7 @@ void color_yellow_cb(lv_event_t *e) {
 
 // 日本語テスト画面に遷移するコールバック
 void show_japanese_cb(lv_event_t *e) {
-    create_japanese_font_screen();  // 日本語画面呼び出し
+    //create_japanese_font_screen();  // 日本語画面呼び出し
 }
 
 void create_color_button_screen() {
