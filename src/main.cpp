@@ -2,7 +2,7 @@
 
 class LGFX : public lgfx::LGFX_Device {
 public:
-  lgfx::Panel_ST7796 _panel_instance;
+  lgfx::Panel_ILI9488 _panel_instance;
   lgfx::Bus_SPI _bus_instance;
   lgfx::Light_PWM _light_instance;
 
@@ -11,7 +11,7 @@ public:
       auto cfg = _bus_instance.config();
       cfg.spi_host = SPI2_HOST;
       cfg.spi_mode = 0;
-      cfg.freq_write = 80000000;
+      cfg.freq_write = 40000000;
       cfg.freq_read  = 16000000;
       cfg.spi_3wire  = false;
       cfg.use_lock   = true;
@@ -33,6 +33,9 @@ public:
       cfg.memory_height = 480;
       cfg.panel_width   = 320;
       cfg.panel_height  = 480;
+      cfg.offset_x = 0;
+      cfg.offset_y = 0;
+      cfg.offset_rotation = 0;
       cfg.invert = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
