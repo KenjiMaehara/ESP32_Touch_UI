@@ -1,53 +1,58 @@
 #include <LovyanGFX.hpp>
 
 class LGFX : public lgfx::LGFX_Device {
-public:
-  lgfx::Panel_ILI9488_8080 _panel;
-  lgfx::Bus_Parallel8 _bus;
+  lgfx::Panel_ILI9488 _panel;
+  lgfx::Bus_SPI _bus;
+  lgfx::Light_PWM _light;
 
+public:
   LGFX(void) {
     {
       auto cfg = _bus.config();
-      cfg.port = 0;
-      cfg.freq_write = 20000000;
-      cfg.pin_wr = 4;     // WRX
-      cfg.pin_rd = -1;    // RD (未使用)
-      cfg.pin_rs = 2;     // DCX
-
-      // データバス（DB0～DB7）
-      cfg.pin_d0 = 32;
-      cfg.pin_d1 = 33;
-      cfg.pin_d2 = 25;
-      cfg.pin_d3 = 26;
-      cfg.pin_d4 = 27;
-      cfg.pin_d5 = 14;
-      cfg.pin_d6 = 12;
-      cfg.pin_d7 = 13;
-
+      cfg.spi_host = VSPI_HOST;
+      cfg.spi_mode = 0;
+      cfg.freq_write = 40000000;
+      cfg.freq_read = 16000000;
+      cfg.spi_3wire = false;
+      cfg.use_lock = true;
+      cfg.dma_channel = 1;
+      cfg.pin_sclk = 14;  // LCD_SCK
+      cfg.pin_mosi = 13;  // LCD_MOSI
+      cfg.pin_miso = -1;  // LCD_MISO not used
+      cfg.pin_dc   = 2;   // LCD_RS (D/C)
       _bus.config(cfg);
       _panel.setBus(&_bus);
     }
 
     {
       auto cfg = _panel.config();
-      cfg.pin_cs = 15;
-      cfg.pin_rst = -1;
+      cfg.pin_cs   = 15;   // LCD_CS
+      cfg.pin_rst  = -1;   // LCD_RST (ENと共有、未制御)
       cfg.pin_busy = -1;
-      cfg.memory_width = 320;
+      cfg.memory_width  = 320;
       cfg.memory_height = 480;
-      cfg.panel_width = 320;
-      cfg.panel_height = 480;
+      cfg.panel_width   = 320;
+      cfg.panel_height  = 480;
       cfg.offset_x = 0;
       cfg.offset_y = 0;
       cfg.offset_rotation = 0;
       cfg.invert = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
-      cfg.bus_shared = false;
+      cfg.bus_shared = true;
       _panel.config(cfg);
     }
 
-    _panel.setLight(nullptr); // バックライト常時ON
+    {
+      auto cfg = _light.config();
+      cfg.pin_bl = 27;  // LCD_BL
+      cfg.invert = false;
+      cfg.freq = 44100;
+      cfg.pwm_channel = 7;
+      _light.config(cfg);
+      _panel.setLight(&_light);
+    }
+
     setPanel(&_panel);
   }
 };
@@ -58,6 +63,7 @@ void setup() {
   Serial.begin(115200);
   tft.init();
   tft.setRotation(1);
+  tft.setBrightness(255);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN);
   tft.setTextSize(2);
