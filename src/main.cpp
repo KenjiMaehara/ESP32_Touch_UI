@@ -4,15 +4,15 @@
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
-  lgfx::Light_PWM _light;  // バックライト制御追加
+  lgfx::Light_PWM _light;
 
 public:
   LGFX(void) {
-    { // SPIバス設定
+    {
       auto cfg = _bus.config();
       cfg.spi_host = VSPI_HOST;
       cfg.spi_mode = 0;
-      cfg.freq_write = 80000000;  // 高速動作に戻す
+      cfg.freq_write = 80000000;
       cfg.freq_read = 16000000;
       cfg.spi_3wire = false;
       cfg.use_lock = true;
@@ -20,12 +20,12 @@ public:
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = -1;
-      cfg.pin_dc   = 21;  // 安全なGPIO21使用
+      cfg.pin_dc   = 21;
       _bus.config(cfg);
       _panel.setBus(&_bus);
     }
 
-    { // パネル設定
+    {
       auto cfg = _panel.config();
       cfg.pin_cs   = 15;
       cfg.pin_rst  = -1;
@@ -44,7 +44,7 @@ public:
       _panel.config(cfg);
     }
 
-    { // バックライトPWM設定
+    {
       auto cfg = _light.config();
       cfg.pin_bl = 27;
       cfg.invert = false;
@@ -67,7 +67,7 @@ void setup() {
   tft.init();
   Serial.println("tft.init OK");
 
-  tft.setBrightness(255);  // バックライト最大に設定
+  tft.setBrightness(255);
   Serial.println("Brightness OK");
 
   tft.setRotation(1);
@@ -76,9 +76,9 @@ void setup() {
   tft.fillScreen(TFT_BLACK);
   Serial.println("fillScreen OK");
 
-  tft.setTextColor(TFT_GREEN);
-  tft.setTextSize(2);
-  tft.setCursor(80, 120);
+  tft.setTextColor(TFT_RED);
+  tft.setTextSize(3);
+  tft.setCursor(40, 200);
   tft.print("Hello, World!");
   Serial.println("print OK");
 }
