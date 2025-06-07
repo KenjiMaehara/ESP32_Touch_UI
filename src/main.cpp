@@ -68,7 +68,7 @@ public:
       cfg.y_min = 200;
       cfg.y_max = 3900;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 0;
+      cfg.offset_rotation = 1;  // 修正：タッチ入力も画面回転に合わせる
       cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
@@ -116,7 +116,7 @@ void setup() {
   Serial.println("tft.init OK");
 
   tft.setBrightness(255);
-  tft.setRotation(0); // 0に変更しタッチ座標と一致させる
+  tft.setRotation(0); // 縦表示に固定
 
   showScreen0();
 }
@@ -128,7 +128,7 @@ void loop() {
       screen_state = !screen_state;
       if (screen_state == 0) showScreen0();
       else showScreen1();
-      delay(300);
+      delay(300);  // デバウンス
     }
   }
 }
