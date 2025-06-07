@@ -14,19 +14,19 @@ public:
       cfg.freq_read = 16000000;
       cfg.spi_3wire = false;
       cfg.use_lock = true;
-      cfg.dma_channel = -1;  // 無効化して安全に
-      cfg.pin_sclk = 14;  // LCD_SCK
-      cfg.pin_mosi = 13;  // LCD_MOSI
-      cfg.pin_miso = -1;  // LCD_MISO not used
-      cfg.pin_dc   = 2;   // LCD_RS (D/C)
+      cfg.dma_channel = -1;
+      cfg.pin_sclk = 14;  // VSPI SCLK
+      cfg.pin_mosi = 13;  // VSPI MOSI
+      cfg.pin_miso = -1;  // MISO未使用
+      cfg.pin_dc   = 2;   // 安定動作するDCピン
       _bus.config(cfg);
       _panel.setBus(&_bus);
     }
 
     {
       auto cfg = _panel.config();
-      cfg.pin_cs   = 15;   // LCD_CS
-      cfg.pin_rst  = -1;   // LCD_RST (ENと共有、未制御)
+      cfg.pin_cs   = 15;   // LCD_CS 安定動作ピン
+      cfg.pin_rst  = -1;
       cfg.pin_busy = -1;
       cfg.memory_width  = 320;
       cfg.memory_height = 480;
@@ -42,7 +42,7 @@ public:
       _panel.config(cfg);
     }
 
-    _panel.setLight(nullptr);  // バックライト処理を一時的にバイパス
+    _panel.setLight(nullptr);
     setPanel(&_panel);
   }
 };
@@ -52,6 +52,10 @@ LGFX tft;
 void setup() {
   Serial.begin(115200);
   Serial.println("Start setup");
+
+  pinMode(27, OUTPUT);
+  digitalWrite(27, HIGH);  // バックライト強制ON
+  Serial.println("Backlight ON");
 
   tft.init();
   Serial.println("tft.init OK");
