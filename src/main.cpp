@@ -19,9 +19,10 @@ public:
       cfg.pin_dc   = 21;
       bus->config(cfg);
     }
-    this->setBus(bus);
 
     auto panel = new lgfx::Panel_ILI9341();
+    panel->setBus(bus);  // ←★ここがポイント！
+
     {
       lgfx::Panel_ILI9341::config_t cfg;
       cfg.pin_cs   = 5;
@@ -43,9 +44,11 @@ public:
       cfg.bus_shared = true;
       panel->config(cfg);
     }
-    this->setPanel(panel);
+
+    this->setPanel(panel);  // 最後にパネルを設定
   }
 };
+
 
 LGFX tft;
 
