@@ -82,6 +82,22 @@ LGFX tft;
 int screen_state = 0;
 const int total_screens = 3;
 lgfx::touch_point_t tp;
+bool circleState[9] = {true,true,true,true,true,true,true,true,true};
+
+void drawCircleGrid() {
+  int radius = 20;
+  int spacing = 60;
+  int startX = 50;
+  int startY = 60;
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      int idx = i * 3 + j;
+      int cx = startX + j * spacing;
+      int cy = startY + i * spacing;
+      tft.fillCircle(cx, cy, radius, circleState[idx] ? TFT_GREEN : TFT_RED);
+    }
+  }
+}
 
 void showScreen0() {
   tft.fillScreen(TFT_BLACK);
@@ -113,12 +129,13 @@ void showScreen2() {
   tft.fillScreen(TFT_PURPLE);
   tft.setTextColor(TFT_WHITE);
   tft.setTextSize(3);
-  tft.setCursor(80, 40);
+  tft.setCursor(80, 20);
   tft.print("Screen 3");
-  tft.fillRect(100, 200, 120, 40, TFT_CYAN);
+  drawCircleGrid();
+  tft.fillRect(200, 200, 100, 40, TFT_GREEN);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(135, 215);
+  tft.setCursor(230, 215);
   tft.print("Next");
 }
 
@@ -132,24 +149,48 @@ void showCurrentScreen() {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Start setup");
-
   tft.init();
-  Serial.println("tft.init OK");
-
   tft.setBrightness(255);
   tft.setRotation(1);
-
   showCurrentScreen();
 }
 
 void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
-    if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
-      screen_state = (screen_state + 1) % total_screens;
-      showCurrentScreen();
-      delay(300);
+
+    if (screen_state == 2) {
+      // チェック9個の丸
+      int radius = 20;
+      int spacing = 60;
+      int startX = 50;
+      int startY = 60;
+      for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+          int idx = i * 3 + j;
+          int cx = startX + j * spacing;
+          int cy = startY + i * spacing;
+          int dx = tp.x - cx;
+          int dy = tp.y - cy;
+          if (dx * dx + dy * dy < radius * radius) {
+            circleState[idx] = !circleState[idx];
+            tft.fillCircle(cx, cy, radius, circleState[idx] ? TFT_GREEN : TFT_RED);
+            delay(300);
+            return;
+          }
+        }
+      }
+      if (tp.x > 200 && tp.x < 300 && tp.y > 200 && tp.y < 240) {
+        screen_state = (screen_state + 1) % total_screens;
+        showCurrentScreen();
+        delay(300);
+      }
+    } else {
+      if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
+        screen_state = (screen_state + 1) % total_screens;
+        showCurrentScreen();
+        delay(300);
+      }
     }
   }
 }
