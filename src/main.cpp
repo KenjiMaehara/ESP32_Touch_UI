@@ -4,14 +4,15 @@
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
+  lgfx::Light_PWM _light;  // バックライト制御追加
 
 public:
   LGFX(void) {
-    {
+    { // SPIバス設定
       auto cfg = _bus.config();
       cfg.spi_host = VSPI_HOST;
       cfg.spi_mode = 0;
-      cfg.freq_write = 40000000;
+      cfg.freq_write = 80000000;  // 高速動作に戻す
       cfg.freq_read = 16000000;
       cfg.spi_3wire = false;
       cfg.use_lock = true;
@@ -19,12 +20,12 @@ public:
       cfg.pin_sclk = 14;
       cfg.pin_mosi = 13;
       cfg.pin_miso = -1;
-      cfg.pin_dc   = 21;  // GPIO2から安全なGPIO21に変更
+      cfg.pin_dc   = 21;  // 安全なGPIO21使用
       _bus.config(cfg);
       _panel.setBus(&_bus);
     }
 
-    {
+    { // パネル設定
       auto cfg = _panel.config();
       cfg.pin_cs   = 15;
       cfg.pin_rst  = -1;
@@ -43,7 +44,16 @@ public:
       _panel.config(cfg);
     }
 
-    _panel.setLight(nullptr);
+    { // バックライトPWM設定
+      auto cfg = _light.config();
+      cfg.pin_bl = 27;
+      cfg.invert = false;
+      cfg.freq = 44100;
+      cfg.pwm_channel = 7;
+      _light.config(cfg);
+      _panel.setLight(&_light);
+    }
+
     setPanel(&_panel);
   }
 };
@@ -54,16 +64,18 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Start setup");
 
-  pinMode(27, OUTPUT);     // バックライト用ピン
-  delay(10);
-  digitalWrite(27, HIGH);  // バックライトON
-  Serial.println("Backlight ON");
-
   tft.init();
   Serial.println("tft.init OK");
 
+  tft.setBrightness(255);  // バックライト最大に設定
+  Serial.println("Brightness OK");
+
   tft.setRotation(1);
+  Serial.println("setRotation OK");
+
   tft.fillScreen(TFT_BLACK);
+  Serial.println("fillScreen OK");
+
   tft.setTextColor(TFT_GREEN);
   tft.setTextSize(2);
   tft.setCursor(80, 120);
