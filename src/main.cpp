@@ -68,7 +68,7 @@ public:
       cfg.y_min = 200;
       cfg.y_max = 3900;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 2;  // ← 描画に合わせて180度反転
+      cfg.offset_rotation = 3;  // 横向き表示に合わせたタッチ回転
       cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
@@ -86,12 +86,12 @@ void showScreen0() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_RED);
   tft.setTextSize(3);
-  tft.setCursor(40, 120);
+  tft.setCursor(80, 40);
   tft.print("Hello, World!");
-  tft.fillRect(60, 360, 200, 40, TFT_GREEN);
+  tft.fillRect(100, 200, 120, 40, TFT_GREEN); // 横向きに合わせて中央下に調整
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(110, 375);
+  tft.setCursor(135, 215);
   tft.print("Next");
 }
 
@@ -99,12 +99,12 @@ void showScreen1() {
   tft.fillScreen(TFT_BLUE);
   tft.setTextColor(TFT_YELLOW);
   tft.setTextSize(3);
-  tft.setCursor(40, 120);
+  tft.setCursor(80, 40);
   tft.print("Second Page");
-  tft.fillRect(60, 360, 200, 40, TFT_ORANGE);
+  tft.fillRect(100, 200, 120, 40, TFT_ORANGE);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(100, 375);
+  tft.setCursor(135, 215);
   tft.print("Back");
 }
 
@@ -116,7 +116,7 @@ void setup() {
   Serial.println("tft.init OK");
 
   tft.setBrightness(255);
-  tft.setRotation(0); // 縦表示に固定
+  tft.setRotation(1); // 横向き表示に変更
 
   showScreen0();
 }
@@ -124,11 +124,11 @@ void setup() {
 void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
-    if (tp.x > 60 && tp.x < 260 && tp.y > 360 && tp.y < 400) {
+    if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
       screen_state = !screen_state;
       if (screen_state == 0) showScreen0();
       else showScreen1();
-      delay(300);  // デバウンス
+      delay(300);
     }
   }
 }
