@@ -1,10 +1,9 @@
-#include <Arduino.h>
 #include <LovyanGFX.hpp>
+#include <vector>
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
-  lgfx::Light_PWM _light;
   lgfx::Touch_XPT2046 _touch;
 
 public:
@@ -13,7 +12,7 @@ public:
       auto cfg = _bus.config();
       cfg.spi_host = VSPI_HOST;
       cfg.spi_mode = 0;
-      cfg.freq_write = 80000000;
+      cfg.freq_write = 40000000;
       cfg.freq_read = 16000000;
       cfg.spi_3wire = false;
       cfg.use_lock = true;
@@ -35,9 +34,7 @@ public:
       cfg.memory_height = 480;
       cfg.panel_width   = 320;
       cfg.panel_height  = 480;
-      cfg.offset_x = 0;
-      cfg.offset_y = 0;
-      cfg.offset_rotation = 0;
+      cfg.offset_rotation = 3;
       cfg.invert = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
@@ -46,151 +43,105 @@ public:
     }
 
     {
-      auto cfg = _light.config();
-      cfg.pin_bl = 27;
-      cfg.invert = false;
-      cfg.freq = 44100;
-      cfg.pwm_channel = 7;
-      _light.config(cfg);
-      _panel.setLight(&_light);
-    }
-
-    {
       auto cfg = _touch.config();
       cfg.spi_host = VSPI_HOST;
       cfg.freq = 1000000;
-      cfg.pin_sclk = 14;
-      cfg.pin_mosi = 13;
-      cfg.pin_miso = 12;
+      cfg.pin_sclk = 25;
+      cfg.pin_mosi = 32;
+      cfg.pin_miso = 39;
       cfg.pin_cs   = 33;
-      cfg.x_min = 200;
-      cfg.x_max = 3900;
-      cfg.y_min = 200;
-      cfg.y_max = 3900;
+      cfg.x_min = 800;
+      cfg.x_max = 3795;
+      cfg.y_min = 100;
+      cfg.y_max = 3944;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 3;
-      cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
     }
 
+    _panel.setLight(nullptr);
     setPanel(&_panel);
   }
 };
 
 LGFX tft;
-int screen_state = 0;
-const int total_screens = 3;
-lgfx::touch_point_t tp;
-bool circleState[9] = {true,true,true,true,true,true,true,true,true};
 
-void drawCircleGrid() {
-  int radius = 20;
-  int spacing = 60;
-  int startX = 50;
-  int startY = 60;
-  for (int i = 0; i < 3; ++i) {
-    for (int j = 0; j < 3; ++j) {
-      int idx = i * 3 + j;
-      int cx = startX + j * spacing;
-      int cy = startY + i * spacing;
-      tft.fillCircle(cx, cy, radius, circleState[idx] ? TFT_GREEN : TFT_RED);
-    }
-  }
-}
+int currentScreen = 0;
 
-void showScreen0() {
+void drawScreen0() {
   tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_RED);
-  tft.setTextSize(3);
-  tft.setCursor(80, 40);
-  tft.print("Screen 1");
-  tft.fillRect(100, 200, 120, 40, TFT_GREEN);
-  tft.setTextColor(TFT_BLACK);
+  tft.setTextColor(TFT_GREEN);
   tft.setTextSize(2);
-  tft.setCursor(135, 215);
+  tft.setCursor(80, 120);
+  tft.print("Hello, World!");
+
+  tft.fillRect(220, 180, 80, 40, TFT_GREEN);
+  tft.setTextColor(TFT_BLACK);
+  tft.setCursor(235, 195);
   tft.print("Next");
 }
 
-void showScreen1() {
+void drawScreen1() {
   tft.fillScreen(TFT_BLUE);
-  tft.setTextColor(TFT_YELLOW);
-  tft.setTextSize(3);
-  tft.setCursor(80, 40);
-  tft.print("Screen 2");
-  tft.fillRect(100, 200, 120, 40, TFT_ORANGE);
-  tft.setTextColor(TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setCursor(135, 215);
-  tft.print("Next");
-}
-
-void showScreen2() {
-  tft.fillScreen(TFT_PURPLE);
   tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(3);
-  tft.setCursor(80, 20);
-  tft.print("Screen 3");
-  drawCircleGrid();
-  tft.fillRect(200, 200, 100, 40, TFT_GREEN);
-  tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(230, 215);
+  tft.setCursor(60, 100);
+  tft.print("This is Screen 2");
+
+  tft.fillRect(220, 180, 80, 40, TFT_GREEN);
+  tft.setTextColor(TFT_BLACK);
+  tft.setCursor(235, 195);
   tft.print("Next");
 }
 
-void showCurrentScreen() {
-  switch (screen_state) {
-    case 0: showScreen0(); break;
-    case 1: showScreen1(); break;
-    case 2: showScreen2(); break;
+void drawScreen2() {
+  tft.fillScreen(TFT_YELLOW);
+  tft.setTextColor(TFT_BLACK);
+  tft.setTextSize(2);
+  tft.setCursor(60, 100);
+  tft.print("Touch the dots");
+
+  for (int i = 0; i < 9; ++i) {
+    int x = 40 + (i % 3) * 80;
+    int y = 150 + (i / 3) * 80;
+    tft.fillCircle(x, y, 20, TFT_GREEN);
   }
+
+  tft.fillRect(220, 10, 80, 40, TFT_RED);
+  tft.setTextColor(TFT_WHITE);
+  tft.setCursor(235, 25);
+  tft.print("Next");
 }
 
 void setup() {
   Serial.begin(115200);
   tft.init();
-  tft.setBrightness(255);
   tft.setRotation(1);
-  showCurrentScreen();
+  drawScreen0();
 }
 
 void loop() {
-  if (tft.getTouch(&tp)) {
-    Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
-
-    if (screen_state == 2) {
-      // チェック9個の丸
-      int radius = 20;
-      int spacing = 60;
-      int startX = 50;
-      int startY = 60;
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-          int idx = i * 3 + j;
-          int cx = startX + j * spacing;
-          int cy = startY + i * spacing;
-          int dx = tp.x - cx;
-          int dy = tp.y - cy;
-          if (dx * dx + dy * dy < radius * radius) {
-            circleState[idx] = !circleState[idx];
-            tft.fillCircle(cx, cy, radius, circleState[idx] ? TFT_GREEN : TFT_RED);
-            delay(300);
-            return;
-          }
+  uint16_t x, y;
+  if (tft.getTouch(&x, &y)) {
+    Serial.printf("Touch: x=%d y=%d\n", x, y);
+    if (currentScreen == 0 && x > 220 && x < 300 && y > 180 && y < 220) {
+      currentScreen = 1;
+      drawScreen1();
+    } else if (currentScreen == 1 && x > 220 && x < 300 && y > 180 && y < 220) {
+      currentScreen = 2;
+      drawScreen2();
+    } else if (currentScreen == 2 && x > 220 && x < 300 && y > 10 && y < 50) {
+      currentScreen = 0;
+      drawScreen0();
+    } else if (currentScreen == 2) {
+      for (int i = 0; i < 9; ++i) {
+        int cx = 40 + (i % 3) * 80;
+        int cy = 150 + (i / 3) * 80;
+        if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < 400) {
+          tft.fillCircle(cx, cy, 20, TFT_RED);
         }
       }
-      if (tp.x > 200 && tp.x < 300 && tp.y > 200 && tp.y < 240) {
-        screen_state = (screen_state + 1) % total_screens;
-        showCurrentScreen();
-        delay(300);
-      }
-    } else {
-      if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
-        screen_state = (screen_state + 1) % total_screens;
-        showCurrentScreen();
-        delay(300);
-      }
     }
+    delay(300);
   }
 }
