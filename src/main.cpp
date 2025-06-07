@@ -88,10 +88,10 @@ void showScreen0() {
   tft.setTextSize(3);
   tft.setCursor(40, 120);
   tft.print("Hello, World!");
-  tft.fillRect(60, 400, 200, 50, TFT_GREEN);
+  tft.fillRect(60, 360, 200, 40, TFT_GREEN);  // ボタン位置を画面中央下へ
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(110, 415);
+  tft.setCursor(110, 375);
   tft.print("Next");
 }
 
@@ -101,10 +101,10 @@ void showScreen1() {
   tft.setTextSize(3);
   tft.setCursor(40, 120);
   tft.print("Second Page");
-  tft.fillRect(60, 400, 200, 50, TFT_ORANGE);
+  tft.fillRect(60, 360, 200, 40, TFT_ORANGE);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(100, 415);
+  tft.setCursor(100, 375);
   tft.print("Back");
 }
 
@@ -123,7 +123,8 @@ void setup() {
 
 void loop() {
   if (tft.getTouch(&tp)) {
-    if (tp.x > 60 && tp.x < 260 && tp.y > 400 && tp.y < 450) {
+    Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
+    if (tp.x > 60 && tp.x < 260 && tp.y > 360 && tp.y < 400) {
       screen_state = !screen_state;
       if (screen_state == 0) showScreen0();
       else showScreen1();
