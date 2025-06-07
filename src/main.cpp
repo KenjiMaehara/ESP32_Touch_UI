@@ -2,26 +2,53 @@
 
 class LGFX : public lgfx::LGFX_Device {
 public:
-  LGFX() {
+  LGFX(void) {
     auto bus = new lgfx::Bus_SPI();
-    bus->config.spi_host = VSPI_HOST;
-    bus->config.spi_mode = 0;
-    bus->config.freq_write = 40000000;
-    bus->config.pin_sclk = 18;
-    bus->config.pin_mosi = 23;
-    bus->config.pin_miso = -1;
-    bus->config.pin_dc   = 21;
+    {
+      lgfx::Bus_SPI::config_t cfg;
+      cfg.spi_host = VSPI_HOST;
+      cfg.spi_mode = 0;
+      cfg.freq_write = 40000000;
+      cfg.freq_read  = 16000000;
+      cfg.spi_3wire  = false;
+      cfg.use_lock   = true;
+      cfg.dma_channel = 1;
+      cfg.pin_sclk = 18;
+      cfg.pin_mosi = 23;
+      cfg.pin_miso = -1;
+      cfg.pin_dc   = 21;
+      bus->config(cfg);
+    }
     this->setBus(bus);
 
     auto panel = new lgfx::Panel_ILI9341();
-    panel->config.pin_cs   = 5;
-    panel->config.pin_rst  = 22;
-    panel->config.pin_busy = -1;
+    {
+      lgfx::Panel_ILI9341::config_t cfg;
+      cfg.pin_cs   = 5;
+      cfg.pin_rst  = 22;
+      cfg.pin_busy = -1;
+      cfg.memory_width  = 240;
+      cfg.memory_height = 320;
+      cfg.panel_width   = 240;
+      cfg.panel_height  = 320;
+      cfg.offset_x = 0;
+      cfg.offset_y = 0;
+      cfg.offset_rotation = 0;
+      cfg.dummy_read_pixel = 8;
+      cfg.dummy_read_bits  = 1;
+      cfg.readable = false;
+      cfg.invert = false;
+      cfg.rgb_order = false;
+      cfg.dlen_16bit = false;
+      cfg.bus_shared = true;
+      panel->config(cfg);
+    }
     this->setPanel(panel);
   }
 };
 
 LGFX tft;
+
 
 enum ScreenState {
   SCREEN_HOME,
