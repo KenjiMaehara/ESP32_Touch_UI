@@ -4,6 +4,7 @@ class LGFX : public lgfx::LGFX_Device {
 public:
   lgfx::Panel_ST7796 _panel_instance;
   lgfx::Bus_SPI _bus_instance;
+  lgfx::Light_PWM _light_instance;
 
   LGFX(void) {
     {
@@ -28,17 +29,25 @@ public:
       cfg.pin_cs   = 15;
       cfg.pin_rst  = -1;
       cfg.pin_busy = -1;
-
       cfg.memory_width  = 320;
       cfg.memory_height = 480;
       cfg.panel_width   = 320;
       cfg.panel_height  = 480;
-
       cfg.invert = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
       cfg.bus_shared = true;
       _panel_instance.config(cfg);
+    }
+
+    {
+      auto cfg = _light_instance.config();
+      cfg.pin_bl = 27;
+      cfg.invert = false;
+      cfg.freq = 44100;
+      cfg.pwm_channel = 7;
+      _light_instance.config(cfg);
+      _panel_instance.setLight(&_light_instance);
     }
 
     setPanel(&_panel_instance);
