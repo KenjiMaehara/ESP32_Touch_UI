@@ -71,7 +71,7 @@ public:
       cfg.offset_rotation = 0;
       cfg.pin_int = -1;
       _touch.config(cfg);
-      this->setTouch(&_touch);
+      _panel.setTouch(&_touch);
     }
 
     setPanel(&_panel);
