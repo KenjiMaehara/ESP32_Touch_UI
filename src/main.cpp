@@ -60,23 +60,32 @@ public:
 
 LGFX tft;
 int screen_state = 0;
-unsigned long last_change = 0;
-const unsigned long interval = 3000;  // 3秒ごとに切り替え
+lgfx::touch_point_t tp;
 
 void showScreen0() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_RED);
   tft.setTextSize(3);
-  tft.setCursor(40, 200);
+  tft.setCursor(40, 120);
   tft.print("Hello, World!");
+  tft.fillRect(60, 300, 200, 50, TFT_GREEN);
+  tft.setTextColor(TFT_BLACK);
+  tft.setTextSize(2);
+  tft.setCursor(110, 315);
+  tft.print("Next");
 }
 
 void showScreen1() {
   tft.fillScreen(TFT_BLUE);
   tft.setTextColor(TFT_YELLOW);
   tft.setTextSize(3);
-  tft.setCursor(20, 200);
+  tft.setCursor(40, 120);
   tft.print("Second Page");
+  tft.fillRect(60, 300, 200, 50, TFT_ORANGE);
+  tft.setTextColor(TFT_BLACK);
+  tft.setTextSize(2);
+  tft.setCursor(100, 315);
+  tft.print("Back");
 }
 
 void setup() {
@@ -87,21 +96,18 @@ void setup() {
   Serial.println("tft.init OK");
 
   tft.setBrightness(255);
-  Serial.println("Brightness OK");
-
   tft.setRotation(1);
-  Serial.println("setRotation OK");
 
   showScreen0();
-  last_change = millis();
 }
 
 void loop() {
-  unsigned long now = millis();
-  if (now - last_change > interval) {
-    screen_state = !screen_state;
-    if (screen_state == 0) showScreen0();
-    else showScreen1();
-    last_change = now;
+  if (tft.getTouchRaw(&tp)) {
+    if (tp.x > 60 && tp.x < 260 && tp.y > 300 && tp.y < 350) {
+      screen_state = !screen_state;
+      if (screen_state == 0) showScreen0();
+      else showScreen1();
+      delay(300);  // デバウンス
+    }
   }
 }
