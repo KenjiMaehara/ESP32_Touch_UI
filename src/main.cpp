@@ -1,9 +1,8 @@
 #include <LovyanGFX.hpp>
 
 class LGFX : public lgfx::LGFX_Device {
-  lgfx::Panel_ILI9488 _panel;
+  lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
-  lgfx::Light_PWM _light;
 
 public:
   LGFX(void) {
@@ -15,7 +14,7 @@ public:
       cfg.freq_read = 16000000;
       cfg.spi_3wire = false;
       cfg.use_lock = true;
-      cfg.dma_channel = 1;
+      cfg.dma_channel = -1;  // 無効化して安全に
       cfg.pin_sclk = 14;  // LCD_SCK
       cfg.pin_mosi = 13;  // LCD_MOSI
       cfg.pin_miso = -1;  // LCD_MISO not used
@@ -43,16 +42,7 @@ public:
       _panel.config(cfg);
     }
 
-    {
-      auto cfg = _light.config();
-      cfg.pin_bl = 27;  // LCD_BL
-      cfg.invert = false;
-      cfg.freq = 44100;
-      cfg.pwm_channel = 7;
-      _light.config(cfg);
-      _panel.setLight(&_light);
-    }
-
+    _panel.setLight(nullptr);  // バックライト処理を一時的にバイパス
     setPanel(&_panel);
   }
 };
@@ -61,14 +51,22 @@ LGFX tft;
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("Start setup");
+
   tft.init();
+  Serial.println("tft.init OK");
+
   tft.setRotation(1);
-  tft.setBrightness(255);
+  Serial.println("setRotation OK");
+
   tft.fillScreen(TFT_BLACK);
+  Serial.println("fillScreen OK");
+
   tft.setTextColor(TFT_GREEN);
   tft.setTextSize(2);
   tft.setCursor(80, 120);
   tft.print("Hello, World!");
+  Serial.println("print OK");
 }
 
 void loop() {
