@@ -68,7 +68,7 @@ public:
       cfg.y_min = 200;
       cfg.y_max = 3900;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 1;  // 修正：タッチ入力も画面回転に合わせる
+      cfg.offset_rotation = 2;  // ← 描画に合わせて180度反転
       cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
