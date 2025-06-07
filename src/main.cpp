@@ -140,7 +140,7 @@ void showScreen3() {
   for (int row = 0; row < 4; row++) {
     for (int col = 0; col < 3; col++) {
       int x = 40 + col * 80;
-      int y = 80 + row * 80;
+      int y = 40 + row * 70;  // 修正: yを下にずらすことで全ボタンを表示
       tft.fillRect(x, y, 60, 60, TFT_WHITE);
       tft.setTextColor(TFT_BLACK);
       tft.setTextSize(3);
@@ -181,7 +181,7 @@ void loop() {
       for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 3; col++) {
           int x = 40 + col * 80;
-          int y = 80 + row * 80;
+          int y = 40 + row * 70;  // 修正: yを下にずらすことでタッチ検出も一致
           if (tp.x > x && tp.x < x + 60 && tp.y > y && tp.y < y + 60) {
             const char* keys[4][3] = {
               {"1", "2", "3"}, {"4", "5", "6"}, {"7", "8", "9"}, {"*", "0", "#"}
