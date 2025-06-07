@@ -2,55 +2,45 @@
 
 class LGFX : public lgfx::LGFX_Device {
 public:
+  lgfx::Panel_ST7796 _panel_instance;
+  lgfx::Bus_SPI _bus_instance;
+
   LGFX(void) {
-    auto bus = new lgfx::Bus_SPI();
     {
-      lgfx::Bus_SPI::config_t cfg;
-      cfg.spi_host = VSPI_HOST;
+      auto cfg = _bus_instance.config();
+      cfg.spi_host = SPI2_HOST;
       cfg.spi_mode = 0;
-      cfg.freq_write = 40000000;
+      cfg.freq_write = 80000000;
       cfg.freq_read  = 16000000;
       cfg.spi_3wire  = false;
       cfg.use_lock   = true;
       cfg.dma_channel = 1;
-      cfg.pin_sclk = 18;
-      cfg.pin_mosi = 23;
-      cfg.pin_miso = -1;
-      cfg.pin_dc   = 21;
-      bus->config(cfg);
+      cfg.pin_sclk = 14;
+      cfg.pin_mosi = 13;
+      cfg.pin_miso = 12;
+      cfg.pin_dc   = 2;
+      _bus_instance.config(cfg);
+      _panel_instance.setBus(&_bus_instance);
     }
 
-    auto panel = new lgfx::Panel_ILI9341();
-    panel->setBus(bus);  // ←★ここがポイント！
-
     {
-      lgfx::Panel_ILI9341::config_t cfg;
-      cfg.pin_cs   = 5;
-      cfg.pin_rst  = 22;
+      auto cfg = _panel_instance.config();
+      cfg.pin_cs   = 15;
+      cfg.pin_rst  = -1;   // ←RST未接続なら-1
       cfg.pin_busy = -1;
-      cfg.memory_width  = 240;
-      cfg.memory_height = 320;
-      cfg.panel_width   = 240;
-      cfg.panel_height  = 320;
-      cfg.offset_x = 0;
-      cfg.offset_y = 0;
-      cfg.offset_rotation = 0;
-      cfg.dummy_read_pixel = 8;
-      cfg.dummy_read_bits  = 1;
-      cfg.readable = false;
       cfg.invert = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
       cfg.bus_shared = true;
-      panel->config(cfg);
+      _panel_instance.config(cfg);
     }
 
-    this->setPanel(panel);  // 最後にパネルを設定
+    setPanel(&_panel_instance);
   }
 };
 
-
 LGFX tft;
+
 
 
 enum ScreenState {
