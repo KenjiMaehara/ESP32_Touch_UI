@@ -68,7 +68,7 @@ public:
       cfg.y_min = 200;
       cfg.y_max = 3900;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 3;  // 横向き表示に合わせたタッチ回転
+      cfg.offset_rotation = 3;
       cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
@@ -80,6 +80,7 @@ public:
 
 LGFX tft;
 int screen_state = 0;
+const int total_screens = 3;
 lgfx::touch_point_t tp;
 
 void showScreen0() {
@@ -87,8 +88,8 @@ void showScreen0() {
   tft.setTextColor(TFT_RED);
   tft.setTextSize(3);
   tft.setCursor(80, 40);
-  tft.print("Hello, World!");
-  tft.fillRect(100, 200, 120, 40, TFT_GREEN); // 横向きに合わせて中央下に調整
+  tft.print("Screen 1");
+  tft.fillRect(100, 200, 120, 40, TFT_GREEN);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
   tft.setCursor(135, 215);
@@ -100,12 +101,33 @@ void showScreen1() {
   tft.setTextColor(TFT_YELLOW);
   tft.setTextSize(3);
   tft.setCursor(80, 40);
-  tft.print("Second Page");
+  tft.print("Screen 2");
   tft.fillRect(100, 200, 120, 40, TFT_ORANGE);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
   tft.setCursor(135, 215);
-  tft.print("Back");
+  tft.print("Next");
+}
+
+void showScreen2() {
+  tft.fillScreen(TFT_PURPLE);
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(80, 40);
+  tft.print("Screen 3");
+  tft.fillRect(100, 200, 120, 40, TFT_CYAN);
+  tft.setTextColor(TFT_BLACK);
+  tft.setTextSize(2);
+  tft.setCursor(135, 215);
+  tft.print("Next");
+}
+
+void showCurrentScreen() {
+  switch (screen_state) {
+    case 0: showScreen0(); break;
+    case 1: showScreen1(); break;
+    case 2: showScreen2(); break;
+  }
 }
 
 void setup() {
@@ -116,18 +138,17 @@ void setup() {
   Serial.println("tft.init OK");
 
   tft.setBrightness(255);
-  tft.setRotation(1); // 横向き表示に変更
+  tft.setRotation(1);
 
-  showScreen0();
+  showCurrentScreen();
 }
 
 void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
     if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
-      screen_state = !screen_state;
-      if (screen_state == 0) showScreen0();
-      else showScreen1();
+      screen_state = (screen_state + 1) % total_screens;
+      showCurrentScreen();
       delay(300);
     }
   }
