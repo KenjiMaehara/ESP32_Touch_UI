@@ -88,7 +88,7 @@ void showScreen0() {
   tft.setTextSize(3);
   tft.setCursor(40, 120);
   tft.print("Hello, World!");
-  tft.fillRect(60, 360, 200, 40, TFT_GREEN);  // ボタン位置を画面中央下へ
+  tft.fillRect(60, 360, 200, 40, TFT_GREEN);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
   tft.setCursor(110, 375);
@@ -116,7 +116,7 @@ void setup() {
   Serial.println("tft.init OK");
 
   tft.setBrightness(255);
-  tft.setRotation(1);
+  tft.setRotation(0); // 0に変更しタッチ座標と一致させる
 
   showScreen0();
 }
@@ -128,7 +128,7 @@ void loop() {
       screen_state = !screen_state;
       if (screen_state == 0) showScreen0();
       else showScreen1();
-      delay(300);  // デバウンス
+      delay(300);
     }
   }
 }
