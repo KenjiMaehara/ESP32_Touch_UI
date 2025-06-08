@@ -211,6 +211,23 @@ void showCurrentScreen() {
   }
 }
 
+void checkButtons() {
+  if (nextButton.contains(tp.x, tp.y)) {
+    nextButton.trigger();
+    return;
+  }
+  if (screen_state == 3) {
+    for (int row = 0; row < 4; row++) {
+      for (int col = 0; col < 3; col++) {
+        if (keyButtons[row][col].contains(tp.x, tp.y)) {
+          keyButtons[row][col].trigger();
+          return;
+        }
+      }
+    }
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   tft.init();
@@ -222,21 +239,7 @@ void setup() {
 void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
-    if (nextButton.contains(tp.x, tp.y)) {
-      nextButton.trigger();
-      delay(300);
-      return;
-    }
-    if (screen_state == 3) {
-      for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 3; col++) {
-          if (keyButtons[row][col].contains(tp.x, tp.y)) {
-            keyButtons[row][col].trigger();
-            delay(300);
-            return;
-          }
-        }
-      }
-    }
+    checkButtons();
+    delay(300);
   }
 }
