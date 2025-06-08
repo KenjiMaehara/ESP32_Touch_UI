@@ -1,6 +1,46 @@
 #include <Arduino.h>
 #include <LovyanGFX.hpp>
 
+// --- LGFX_Button クラス（埋め込み定義） ---
+class LGFX_Button {
+public:
+  int16_t x, y, w, h;
+  uint16_t outlinecolor, fillcolor, textcolor;
+  const char* label;
+  uint8_t textsize;
+  LGFX* gfx;
+
+  void initButton(LGFX* gfx_, int16_t x_, int16_t y_, int16_t w_, int16_t h_, uint16_t outline, uint16_t fill, uint16_t text, const char* label_, uint8_t textsize_) {
+    gfx = gfx_;
+    x = x_ - w_ / 2;
+    y = y_ - h_ / 2;
+    w = w_;
+    h = h_;
+    outlinecolor = outline;
+    fillcolor = fill;
+    textcolor = text;
+    label = label_;
+    textsize = textsize_;
+  }
+
+  void drawButton(bool inverted = false) {
+    uint16_t fill = inverted ? textcolor : fillcolor;
+    uint16_t text = inverted ? fillcolor : textcolor;
+    gfx->fillRect(x, y, w, h, fill);
+    gfx->drawRect(x, y, w, h, outlinecolor);
+    int16_t x_c = x + (w / 2) - (strlen(label) * 6 * textsize / 2);
+    int16_t y_c = y + (h / 2) - (8 * textsize / 2);
+    gfx->setTextColor(text);
+    gfx->setTextSize(textsize);
+    gfx->setCursor(x_c, y_c);
+    gfx->print(label);
+  }
+
+  bool contains(int16_t tx, int16_t ty) {
+    return (tx >= x && tx < (x + w) && ty >= y && ty < (y + h));
+  }
+};
+
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
@@ -83,6 +123,7 @@ int screen_state = 0;
 const int total_screens = 4;
 lgfx::touch_point_t tp;
 String input_value = "";
+LGFX_Button nextButton;
 
 static const char* keys[4][3] = {
   {"1", "2", "3"},
@@ -91,17 +132,18 @@ static const char* keys[4][3] = {
   {"*", "0", "#"}
 };
 
+void drawNextButton(int x, int y, int w, int h) {
+  nextButton.initButton(&tft, x + w/2, y + h/2, w, h, TFT_WHITE, TFT_GREEN, TFT_BLACK, "Next", 2);
+  nextButton.drawButton();
+}
+
 void showScreen0() {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_RED);
   tft.setTextSize(3);
   tft.setCursor(80, 40);
   tft.print("Screen 1");
-  tft.fillRect(100, 200, 120, 40, TFT_GREEN);
-  tft.setTextColor(TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setCursor(135, 215);
-  tft.print("Next");
+  drawNextButton(100, 200, 120, 40);
 }
 
 void showScreen1() {
@@ -110,11 +152,7 @@ void showScreen1() {
   tft.setTextSize(3);
   tft.setCursor(80, 40);
   tft.print("Screen 2");
-  tft.fillRect(100, 200, 120, 40, TFT_ORANGE);
-  tft.setTextColor(TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setCursor(135, 215);
-  tft.print("Next");
+  drawNextButton(100, 200, 120, 40);
 }
 
 void showScreen2() {
@@ -123,11 +161,7 @@ void showScreen2() {
   tft.setTextSize(3);
   tft.setCursor(80, 40);
   tft.print("Screen 3");
-  tft.fillRect(100, 200, 120, 40, TFT_CYAN);
-  tft.setTextColor(TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setCursor(135, 215);
-  tft.print("Next");
+  drawNextButton(100, 200, 120, 40);
 }
 
 void showScreen3() {
@@ -149,12 +183,7 @@ void showScreen3() {
     }
   }
 
-  // Nextボタンを画面右下に配置
-  tft.fillRect(240, 260, 60, 40, TFT_GREEN);
-  tft.setTextColor(TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setCursor(250, 275);
-  tft.print("Next");
+  drawNextButton(240, 260, 60, 40);
 }
 
 void showCurrentScreen() {
@@ -178,13 +207,12 @@ void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
 
-    if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240 && screen_state < 3) {
+    if (screen_state < 3 && nextButton.contains(tp.x, tp.y)) {
       screen_state = (screen_state + 1) % total_screens;
       showCurrentScreen();
       delay(300);
     }
     else if (screen_state == 3) {
-      // テンキータッチ
       for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 3; col++) {
           int x = 40 + col * 80;
@@ -197,8 +225,7 @@ void loop() {
           }
         }
       }
-      // Nextボタン判定（右下）
-      if (tp.x > 240 && tp.x < 300 && tp.y > 260 && tp.y < 300) {
+      if (nextButton.contains(tp.x, tp.y)) {
         screen_state = 0;
         showCurrentScreen();
         delay(300);
