@@ -133,8 +133,15 @@ const int total_screens = 4;
 lgfx::touch_point_t tp;
 String input_value = "";
 MyButton nextButton;
+MyButton keyButtons[4][3];
+const char* keys[4][3] = {
+  {"1", "2", "3"},
+  {"4", "5", "6"},
+  {"7", "8", "9"},
+  {"*", "0", "#"}
+};
 
-void showCurrentScreen();  // ← これを追加（ラムダ内で使うため）
+void showCurrentScreen();
 
 void drawNextButton(int x, int y, int w, int h) {
   nextButton.initButton(&tft, x + w/2, y + h/2, w, h, TFT_WHITE, TFT_GREEN, TFT_BLACK, "Next", 2);
@@ -178,6 +185,20 @@ void showScreen3() {
   tft.setTextSize(2);
   tft.setCursor(40, 20);
   tft.print("Input: " + input_value);
+
+  for (int row = 0; row < 4; row++) {
+    for (int col = 0; col < 3; col++) {
+      int x = 40 + col * 80;
+      int y = 40 + row * 70;
+      keyButtons[row][col].initButton(&tft, x + 30, y + 30, 60, 60, TFT_BLACK, TFT_WHITE, TFT_BLACK, keys[row][col], 2);
+      keyButtons[row][col].setCallback([row, col]() {
+        input_value += keys[row][col];
+        showScreen3();
+      });
+      keyButtons[row][col].drawButton();
+    }
+  }
+
   drawNextButton(240, 260, 60, 40);
 }
 
@@ -204,6 +225,18 @@ void loop() {
     if (nextButton.contains(tp.x, tp.y)) {
       nextButton.trigger();
       delay(300);
+      return;
+    }
+    if (screen_state == 3) {
+      for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 3; col++) {
+          if (keyButtons[row][col].contains(tp.x, tp.y)) {
+            keyButtons[row][col].trigger();
+            delay(300);
+            return;
+          }
+        }
+      }
     }
   }
 }
