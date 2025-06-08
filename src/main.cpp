@@ -68,7 +68,7 @@ public:
       cfg.y_min = 200;
       cfg.y_max = 3900;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 3;
+      cfg.offset_rotation = 0;
       cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
@@ -83,6 +83,13 @@ int screen_state = 0;
 const int total_screens = 4;
 lgfx::touch_point_t tp;
 String input_value = "";
+
+static const char* keys[4][3] = {
+  {"1", "2", "3"},
+  {"4", "5", "6"},
+  {"7", "8", "9"},
+  {"*", "0", "#"}
+};
 
 void showScreen0() {
   tft.fillScreen(TFT_BLACK);
@@ -130,17 +137,10 @@ void showScreen3() {
   tft.setCursor(40, 20);
   tft.print("Input: " + input_value);
 
-  const char* keys[4][3] = {
-    {"1", "2", "3"},
-    {"4", "5", "6"},
-    {"7", "8", "9"},
-    {"*", "0", "#"}
-  };
-
   for (int row = 0; row < 4; row++) {
     for (int col = 0; col < 3; col++) {
       int x = 40 + col * 80;
-      int y = 40 + row * 70;  // 修正: yを下にずらすことで全ボタンを表示
+      int y = 40 + row * 70;
       tft.fillRect(x, y, 60, 60, TFT_WHITE);
       tft.setTextColor(TFT_BLACK);
       tft.setTextSize(3);
@@ -177,15 +177,11 @@ void loop() {
       delay(300);
     }
     else if (screen_state == 3) {
-      // テンキーのタップ判定
       for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 3; col++) {
           int x = 40 + col * 80;
-          int y = 40 + row * 70;  // 修正: yを下にずらすことでタッチ検出も一致
+          int y = 40 + row * 70;
           if (tp.x > x && tp.x < x + 60 && tp.y > y && tp.y < y + 60) {
-            const char* keys[4][3] = {
-              {"1", "2", "3"}, {"4", "5", "6"}, {"7", "8", "9"}, {"*", "0", "#"}
-            };
             input_value += keys[row][col];
             showScreen3();
             delay(300);
