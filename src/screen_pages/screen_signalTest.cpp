@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <LovyanGFX.hpp>
 #include <functional>
+#include "ui_components.hpp"
 
 extern LGFX tft;
 extern void drawNextButton(int x, int y, int w, int h);

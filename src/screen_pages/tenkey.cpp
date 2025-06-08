@@ -2,12 +2,14 @@
 #include <Arduino.h>
 #include "ui_components.hpp"
 #include "tenkey.hpp"
+#include "screen_signalTest.hpp"
 
 extern LGFX tft;
 extern String input_value;
 extern void drawNextButton(int x, int y, int w, int h);
 extern const char* keys[4][3];
 extern MyButton keyButtons[4][3];
+extern int screen_state;
 
 void showScreen3() {
   tft.fillScreen(TFT_DARKGREY);
@@ -29,5 +31,11 @@ void showScreen3() {
     }
   }
 
-  drawNextButton(240, 260, 60, 40);
+  MyButton* next = new MyButton();
+  next->initButton(&tft, 270, 280, 80, 40, TFT_BLACK, TFT_GREEN, TFT_BLACK, "Next", 2);
+  next->setCallback([]() {
+    screen_state = 4;
+    showScreenSignalTest();
+  });
+  next->drawButton();
 }

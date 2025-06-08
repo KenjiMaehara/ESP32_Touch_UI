@@ -4,7 +4,6 @@
 #include "screen_pages/tenkey.hpp"
 #include "screen_pages/screen_signalTest.hpp"
 
-
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
   lgfx::Bus_SPI _bus;
@@ -132,7 +131,7 @@ public:
 
 LGFX tft;
 int screen_state = 0;
-const int total_screens = 4;
+const int total_screens = 5;
 lgfx::touch_point_t tp;
 String input_value = "";
 MyButton nextButton;
@@ -188,6 +187,7 @@ void showCurrentScreen() {
     case 1: showScreen1(); break;
     case 2: showScreen2(); break;
     case 3: showScreen3(); break;
+    case 4: showScreenSignalTest(); break;
   }
 }
 
@@ -205,6 +205,9 @@ void checkButtons() {
         }
       }
     }
+  }
+  if (screen_state == 4) {
+    handleScreenSignalTestTouch();
   }
 }
 
