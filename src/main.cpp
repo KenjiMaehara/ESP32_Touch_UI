@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <LovyanGFX.hpp>
 
-// --- LGFX_Button クラス（埋め込み定義） ---
-class LGFX_Button {
+// --- MyButton クラス（LGFX_Button の競合回避版） ---
+class MyButton {
 public:
   int16_t x, y, w, h;
   uint16_t outlinecolor, fillcolor, textcolor;
@@ -123,7 +123,7 @@ int screen_state = 0;
 const int total_screens = 4;
 lgfx::touch_point_t tp;
 String input_value = "";
-LGFX_Button nextButton;
+MyButton nextButton;
 
 static const char* keys[4][3] = {
   {"1", "2", "3"},
