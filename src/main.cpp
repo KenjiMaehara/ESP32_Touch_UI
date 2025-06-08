@@ -63,12 +63,12 @@ public:
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
       cfg.pin_cs   = 33;
-      cfg.x_min = 3900;  // X座標の反転
-      cfg.x_max = 200;
-      cfg.y_min = 3900;  // Y座標の反転
+      cfg.x_min = 200;  // X反転（そのまま）
+      cfg.x_max = 3900;
+      cfg.y_min = 3900;   // Y軸は正方向に戻す（上下反転解除）
       cfg.y_max = 200;
       cfg.bus_shared = true;
-      cfg.offset_rotation = 0;  // 表示と一致させるための回転なし
+      cfg.offset_rotation = 0;
       cfg.pin_int = -1;
       _touch.config(cfg);
       _panel.setTouch(&_touch);
