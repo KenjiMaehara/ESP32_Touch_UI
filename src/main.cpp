@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <LovyanGFX.hpp>
 #include <functional>
+#include "screen_pages/tenkey.hpp"
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
@@ -177,29 +178,6 @@ void showScreen2() {
   tft.setCursor(80, 40);
   tft.print("Screen 3");
   drawNextButton(100, 200, 120, 40);
-}
-
-void showScreen3() {
-  tft.fillScreen(TFT_DARKGREY);
-  tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(40, 20);
-  tft.print("Input: " + input_value);
-
-  for (int row = 0; row < 4; row++) {
-    for (int col = 0; col < 3; col++) {
-      int x = 40 + col * 80;
-      int y = 40 + row * 70;
-      keyButtons[row][col].initButton(&tft, x + 30, y + 30, 60, 60, TFT_BLACK, TFT_WHITE, TFT_BLACK, keys[row][col], 2);
-      keyButtons[row][col].setCallback([row, col]() {
-        input_value += keys[row][col];
-        showScreen3();
-      });
-      keyButtons[row][col].drawButton();
-    }
-  }
-
-  drawNextButton(240, 260, 60, 40);
 }
 
 void showCurrentScreen() {
