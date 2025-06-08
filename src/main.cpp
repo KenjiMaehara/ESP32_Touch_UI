@@ -134,6 +134,8 @@ lgfx::touch_point_t tp;
 String input_value = "";
 MyButton nextButton;
 
+void showCurrentScreen();  // ← これを追加（ラムダ内で使うため）
+
 void drawNextButton(int x, int y, int w, int h) {
   nextButton.initButton(&tft, x + w/2, y + h/2, w, h, TFT_WHITE, TFT_GREEN, TFT_BLACK, "Next", 2);
   nextButton.setCallback([]() {
@@ -176,7 +178,6 @@ void showScreen3() {
   tft.setTextSize(2);
   tft.setCursor(40, 20);
   tft.print("Input: " + input_value);
-
   drawNextButton(240, 260, 60, 40);
 }
 
