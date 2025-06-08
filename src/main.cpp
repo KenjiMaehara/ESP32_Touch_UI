@@ -2,6 +2,8 @@
 #include <LovyanGFX.hpp>
 #include <functional>
 #include "screen_pages/tenkey.hpp"
+#include "screen_pages/screen_signalTest.hpp"
+
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ST7796 _panel;
