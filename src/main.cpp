@@ -63,9 +63,9 @@ public:
       cfg.pin_mosi = 13;
       cfg.pin_miso = 12;
       cfg.pin_cs   = 33;
-      cfg.x_min = 200;  // X反転（そのまま）
+      cfg.x_min = 200;
       cfg.x_max = 3900;
-      cfg.y_min = 3900;   // Y軸は正方向に戻す（上下反転解除）
+      cfg.y_min = 3900;
       cfg.y_max = 200;
       cfg.bus_shared = true;
       cfg.offset_rotation = 0;
@@ -148,6 +148,13 @@ void showScreen3() {
       tft.print(keys[row][col]);
     }
   }
+
+  // Nextボタン
+  tft.fillRect(100, 340, 120, 40, TFT_GREEN);
+  tft.setTextColor(TFT_BLACK);
+  tft.setTextSize(2);
+  tft.setCursor(135, 355);
+  tft.print("Next");
 }
 
 void showCurrentScreen() {
@@ -163,7 +170,7 @@ void setup() {
   Serial.begin(115200);
   tft.init();
   tft.setBrightness(255);
-  tft.setRotation(1);  // 横表示
+  tft.setRotation(1);
   showCurrentScreen();
 }
 
@@ -171,12 +178,13 @@ void loop() {
   if (tft.getTouch(&tp)) {
     Serial.printf("Touch: x=%d y=%d\n", tp.x, tp.y);
 
-    if (screen_state < 3 && tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240) {
+    if (tp.x > 100 && tp.x < 220 && tp.y > 200 && tp.y < 240 && screen_state < 3) {
       screen_state = (screen_state + 1) % total_screens;
       showCurrentScreen();
       delay(300);
     }
     else if (screen_state == 3) {
+      // テンキータッチ
       for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 3; col++) {
           int x = 40 + col * 80;
@@ -188,6 +196,13 @@ void loop() {
             return;
           }
         }
+      }
+      // Nextボタン判定
+      if (tp.x > 100 && tp.x < 220 && tp.y > 340 && tp.y < 380) {
+        screen_state = 0;
+        showCurrentScreen();
+        delay(300);
+        return;
       }
     }
   }
