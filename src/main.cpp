@@ -149,11 +149,11 @@ void showScreen3() {
     }
   }
 
-  // Nextボタン
-  tft.fillRect(100, 340, 120, 40, TFT_GREEN);
+  // Nextボタンを画面右下に配置
+  tft.fillRect(240, 260, 60, 40, TFT_GREEN);
   tft.setTextColor(TFT_BLACK);
   tft.setTextSize(2);
-  tft.setCursor(135, 355);
+  tft.setCursor(250, 275);
   tft.print("Next");
 }
 
@@ -197,8 +197,8 @@ void loop() {
           }
         }
       }
-      // Nextボタン判定
-      if (tp.x > 100 && tp.x < 220 && tp.y > 340 && tp.y < 380) {
+      // Nextボタン判定（右下）
+      if (tp.x > 240 && tp.x < 300 && tp.y > 260 && tp.y < 300) {
         screen_state = 0;
         showCurrentScreen();
         delay(300);
